@@ -1,0 +1,686 @@
+/* General Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #2c3e50;
+    color: #ecf0f1;
+    overflow-x: hidden;
+}
+
+#game-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.player-red {
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+.player-blue {
+    color: #3498db;
+    font-weight: bold;
+}
+
+/* Main Content */
+#main-content {
+    display: flex;
+    flex: 1;
+    height: calc(100vh - 120px); /* Account for actions panel */
+}
+
+/* Board Area */
+#board-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Bottom Bar */
+#bottom-bar {
+    background-color: #34495e;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.3);
+}
+
+/* Resource Bar (left side of bottom bar) */
+#resource-bar {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 20px;
+}
+
+#resource-cards, #dev-cards {
+    display: flex;
+    gap: 10px;
+}
+
+.resource-card, .dev-card {
+    position: relative;
+    width: 80px;
+    height: 100px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.resource-card:hover {
+    transform: translateY(-5px);
+}
+
+.dev-card:hover {
+    transform: translateY(-5px);
+}
+
+.dev-card.playable:hover {
+    transform: translateY(-5px) scale(1.05);
+    filter: brightness(1.1);
+}
+
+.resource-card img, .dev-card img {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.card-count {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: rgba(0,0,0,0.8);
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    min-width: 20px;
+    text-align: center;
+}
+
+.divider {
+    width: 2px;
+    height: 80px;
+    background-color: #2c3e50;
+}
+
+/* Side Panel */
+#side-panel {
+    width: 280px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+}
+
+/* Player Stats */
+#player-stats {
+    background-color: #34495e;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.player-stat {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #2c3e50;
+}
+
+.player-stat:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.player-name {
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.stat-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 0;
+}
+
+.stat-icon {
+    font-size: 18px;
+    width: 30px;
+}
+
+.stat-value {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+/* Game Board */
+#board-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 20px;
+}
+
+#game-board {
+    background-color: #5dade2;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    width: 900px;
+    height: 650px;
+}
+
+/* Hexagon Styles */
+.hex {
+    cursor: pointer;
+}
+
+.hex-tile {
+    stroke: #2c3e50;
+    stroke-width: 2;
+}
+
+.hex-number {
+    font-size: 20px;
+    font-weight: bold;
+    text-anchor: middle;
+    dominant-baseline: middle;
+    pointer-events: none;
+}
+
+/* Roads */
+.road {
+    stroke-width: 8;
+    stroke-linecap: round;
+    cursor: pointer;
+    opacity: 1;
+}
+
+.road-red { stroke: #e74c3c; }
+.road-blue { stroke: #3498db; }
+.road-placeholder {
+    stroke: rgba(255,255,255,0.3);
+    stroke-dasharray: 5,5;
+}
+
+/* Settlements and Cities */
+.settlement, .city {
+    cursor: pointer;
+}
+
+.settlement-red { fill: #e74c3c; }
+.settlement-blue { fill: #3498db; }
+.city-red { fill: #c0392b; }
+.city-blue { fill: #2980b9; }
+
+.building-placeholder {
+    fill: rgba(255,255,255,0.3);
+    stroke: rgba(255,255,255,0.5);
+    stroke-width: 2;
+}
+
+/* Robber */
+.robber {
+    cursor: pointer;
+    opacity: 0.9;
+}
+
+/* Ports */
+.port {
+    font-size: 14px;
+    fill: white;
+    font-weight: bold;
+    text-anchor: middle;
+}
+
+.port-bg {
+    fill: #8b6914;
+    stroke: #2c3e50;
+    stroke-width: 2;
+}
+
+/* Dice */
+#dice-container {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+#dice-container img {
+    width: 55px;
+    height: 55px;
+    background-color: white;
+    border-radius: 6px;
+    padding: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+/* Actions Panel (right side of bottom bar) */
+#actions-panel {
+    width: 400px;
+    padding: 0 20px;
+    border-left: 2px solid #2c3e50;
+}
+
+#actions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 100px;
+    overflow-y: auto;
+    align-items: flex-end;
+}
+
+.action-button {
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+}
+
+.action-button:hover {
+    background-color: #229954;
+}
+
+.action-button:disabled {
+    background-color: #7f8c8d;
+    cursor: not-allowed;
+}
+
+.action-button.build { background-color: #e67e22; }
+.action-button.build:hover { background-color: #d35400; }
+
+.action-button.trade { background-color: #3498db; }
+.action-button.trade:hover { background-color: #2980b9; }
+
+.action-button.dev-card { background-color: #9b59b6; }
+.action-button.dev-card:hover { background-color: #8e44ad; }
+
+.action-button.end-turn { background-color: #e74c3c; }
+.action-button.end-turn:hover { background-color: #c0392b; }
+
+/* Event Log */
+#event-log {
+    background-color: #34495e;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 200px;
+}
+
+#event-log h3 {
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+#log-messages {
+    flex: 1;
+    overflow-y: auto;
+    font-size: 13px;
+}
+
+.log-entry {
+    padding: 0.25rem;
+    margin-bottom: 0.25rem;
+    border-left: 3px solid #7f8c8d;
+    padding-left: 0.5rem;
+}
+
+.log-entry.red { border-color: #e74c3c; }
+.log-entry.blue { border-color: #3498db; }
+.log-entry.system { border-color: #f39c12; }
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+}
+
+.modal-content {
+    background-color: #34495e;
+    margin: 10% auto;
+    padding: 2rem;
+    border-radius: 8px;
+    width: 400px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modal-content h2 {
+    margin-bottom: 1rem;
+    color: #e74c3c;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 0.5rem;
+    border: none;
+    border-radius: 4px;
+    background-color: #2c3e50;
+    color: #ecf0f1;
+}
+
+#start-game {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#start-game:hover {
+    background-color: #229954;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #2c3e50;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #7f8c8d;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #95a5a6;
+}
+
+/* Interactive placement */
+.setup-info {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    font-size: 16px;
+    text-align: center;
+    color: #2c3e50;
+}
+
+.placement-highlight {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.5; }
+    50% { opacity: 0.8; }
+    100% { opacity: 0.5; }
+}
+
+.action-button.primary {
+    background: #27ae60;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.action-button.primary:hover {
+    background: #2ecc71;
+}
+
+.action-button.warning {
+    background: #e74c3c;
+    color: white;
+}
+
+.building-actions {
+    margin-top: 10px;
+    padding: 10px;
+    background: #2c3e50;
+    border-radius: 5px;
+}
+
+/* Action Buttons */
+#action-buttons {
+    display: flex;
+    gap: 10px;
+    padding: 0 10px;
+    align-items: center;
+}
+
+.action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 12px;
+    background: #27ae60;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 12px;
+}
+
+.action-btn:hover {
+    background: #2ecc71;
+    transform: translateY(-2px);
+}
+
+.action-btn:disabled {
+    background: #7f8c8d;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.action-btn img {
+    width: 30px;
+    height: 30px;
+}
+
+/* Action Modals */
+.action-modal .modal-content {
+    width: 500px;
+    max-width: 90%;
+    margin: 5% auto;
+    max-height: 85vh;
+}
+
+#discard-area, #selected-discards, #selected-trade-give {
+    min-height: 80px;
+    background: #2c3e50;
+    border-radius: 4px;
+    padding: 10px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 10px 0;
+}
+
+#discard-resource-cards, #trade-resource-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.modal-resource-card {
+    display: inline-block;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.modal-resource-card:hover {
+    transform: translateY(-5px);
+}
+
+#available-resources h4, #discard-area h4 {
+    color: #ecf0f1;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.selected-card {
+    width: 60px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.selected-card:hover {
+    transform: translateY(-5px);
+}
+
+#trade-options {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 10px 0;
+}
+
+.trade-option {
+    padding: 10px 20px;
+    background: #3498db;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s;
+}
+
+.trade-option:hover {
+    background: #2980b9;
+}
+
+.trade-option.selected {
+    background: #e74c3c;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.btn-confirm, .btn-cancel {
+    padding: 10px 30px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-confirm {
+    background: #27ae60;
+    color: white;
+}
+
+.btn-confirm:hover:not(:disabled) {
+    background: #2ecc71;
+}
+
+.btn-confirm:disabled {
+    background: #7f8c8d;
+    cursor: not-allowed;
+}
+
+.btn-cancel {
+    background: #e74c3c;
+    color: white;
+}
+
+.btn-cancel:hover {
+    background: #c0392b;
+}
+
+/* Make resource cards interactive during discard/trade */
+.resource-card.clickable {
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.resource-card.clickable:hover {
+    border-color: #f39c12;
+    transform: translateY(-5px);
+}
+
+/* Year of Plenty and Monopoly modals */
+#year-of-plenty-options, #monopoly-options {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.resource-option, .monopoly-option {
+    padding: 15px 20px;
+    background: #3498db;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.2s;
+}
+
+.resource-option:hover, .monopoly-option:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+}
+
+.resource-option.selected, .monopoly-option.selected {
+    background: #e74c3c;
+}
+
+#yop-selected-resources {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 10px;
+    min-height: 40px;
+}
+
+#yop-selected-resources span {
+    font-size: 24px;
+}

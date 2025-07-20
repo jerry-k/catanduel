@@ -1,0 +1,11 @@
+<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+  <!-- Blue Settlement -->
+  <g id="settlement-blue">
+    <!-- House base -->
+    <rect x="10" y="20" width="20" height="15" fill="#0066CC" stroke="#000" stroke-width="1"/>
+    <!-- Roof -->
+    <path d="M 5 20 L 20 5 L 35 20 Z" fill="#0047AB" stroke="#000" stroke-width="1"/>
+    <!-- Door -->
+    <rect x="17" y="25" width="6" height="10" fill="#000"/>
+  </g>
+</svg>

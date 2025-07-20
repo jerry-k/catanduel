@@ -10,7 +10,7 @@ The coordinate mappings here should match the Excel files provided.
 """
 
 from typing import Dict, List, Set, Tuple, Optional
-from models.enums import (
+from engine.models.enums import (
     HEX_TYPE_DESERT, HEX_TYPE_WOOD, HEX_TYPE_BRICK, 
     HEX_TYPE_SHEEP, HEX_TYPE_WHEAT, HEX_TYPE_ORE,
     PORT_TYPE_3_1, PORT_TYPE_WOOD, PORT_TYPE_BRICK,

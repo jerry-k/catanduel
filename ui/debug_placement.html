@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Placement Issue</title>
+    <script>
+        // Test the placement logic
+        function testPlacementLogic() {
+            // Simulate legal actions from server
+            const legalActions = [
+                {
+                    "corner": 0,
+                    "player": 0,
+                    "type": "BUILD_INITIAL_SETTLEMENT"
+                },
+                {
+                    "corner": 1,
+                    "player": 0,
+                    "type": "BUILD_INITIAL_SETTLEMENT"
+                }
+            ];
+            
+            console.log("Legal Actions:", legalActions);
+            
+            // Test the filter logic
+            const mode = 'settlement';
+            const validPlacements = legalActions
+                .filter(a => a.type === 'BUILD_SETTLEMENT' || a.type === 'BUILD_INITIAL_SETTLEMENT')
+                .map(a => ({ type: 'corner', id: a.corner, action: a }));
+                
+            console.log("Valid Placements:", validPlacements);
+            
+            // Check if we have valid placements
+            if (validPlacements.length > 0) {
+                console.log("✅ Placement logic works!");
+                console.log("First placement ID:", validPlacements[0].id);
+            } else {
+                console.log("❌ No valid placements found!");
+            }
+        }
+        
+        window.onload = testPlacementLogic;
+    </script>
+</head>
+<body>
+    <h1>Debug Placement Issue</h1>
+    <p>Check the browser console for results.</p>
+</body>
+</html>

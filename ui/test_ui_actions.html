@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test UI Actions</title>
+</head>
+<body>
+    <h1>Testing CatanDuel UI Legal Actions</h1>
+    <button onclick="createGame()">Create New Game</button>
+    <button onclick="getState()">Get Game State</button>
+    <pre id="output"></pre>
+
+    <script>
+        let gameId = null;
+        const output = document.getElementById('output');
+
+        async function createGame() {
+            try {
+                const response = await fetch('http://localhost:5555/api/new_game', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                const data = await response.json();
+                gameId = data.game_id;
+                
+                output.textContent = 'New Game Created:\n';
+                output.textContent += 'Game ID: ' + gameId + '\n';
+                output.textContent += 'Current Player: ' + data.state.current_player + '\n';
+                output.textContent += 'Setup Phase: ' + data.state.setup_phase + '\n';
+                output.textContent += '\nLegal Actions (' + data.legal_actions.length + '):\n';
+                data.legal_actions.slice(0, 5).forEach((action, i) => {
+                    output.textContent += JSON.stringify(action, null, 2) + '\n';
+                });
+            } catch (error) {
+                output.textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function getState() {
+            if (!gameId) {
+                output.textContent = 'No game created yet!';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`http://localhost:5555/api/game_state/${gameId}`);
+                const data = await response.json();
+                
+                output.textContent = 'Game State:\n';
+                output.textContent += 'Current Player: ' + data.state.current_player + '\n';
+                output.textContent += 'Setup Phase: ' + data.state.setup_phase + '\n';
+                output.textContent += 'AI Thinking: ' + data.ai_thinking + '\n';
+                output.textContent += '\nLegal Actions (' + data.legal_actions.length + '):\n';
+                data.legal_actions.slice(0, 5).forEach((action, i) => {
+                    output.textContent += JSON.stringify(action, null, 2) + '\n';
+                });
+            } catch (error) {
+                output.textContent = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

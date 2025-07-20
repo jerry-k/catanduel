@@ -11,7 +11,7 @@ Based on catanatron's actions.py but simplified for 2 players.
 from typing import List, Set, Optional
 import random
 
-from .enums import (
+from engine.models.enums import (
     # Actions
     Action, ActionType, ActionPrompt,
     # Resources
@@ -29,13 +29,13 @@ from .enums import (
     # Board
     HEX_TYPE_DESERT
 )
-from colonist_map import (
+from engine.colonist_map import (
     HEX_TO_CORNERS, HEX_TO_EDGES, EDGE_TO_CORNERS,
     get_corner_hexes, get_connected_edges, get_adjacent_corners,
     PORT_CORNERS, PORT_TYPE_3_1, PORT_TYPE_WOOD, PORT_TYPE_BRICK,
     PORT_TYPE_SHEEP, PORT_TYPE_WHEAT, PORT_TYPE_ORE
 )
-from state import GameState
+from engine.state import GameState
 
 
 def generate_actions(state: GameState) -> List[Action]:
@@ -402,12 +402,26 @@ def generate_move_robber_actions(state: GameState) -> List[Action]:
     # Get all valid hexes (not current position)
     valid_hexes = state.board.get_valid_robber_hexes()
     
+    # Apply friendly robber rule: can't place on hex adjacent to opponent with ≤2 VP
+    has_low_vp_opponent = any(p.public_vps <= 2 for i, p in enumerate(state.players) if i != player_id)
+    
     for hex_id in valid_hexes:
         # Get players on this hex
         players_on_hex = state.board.get_players_on_hex(hex_id)
         
         # Remove current player
         victims = [p for p in players_on_hex if p != player_id]
+        
+        # Check friendly robber restriction
+        if has_low_vp_opponent:
+            # Check if any low VP opponent has buildings on this hex
+            blocked = False
+            for victim_id in victims:
+                if state.players[victim_id].public_vps <= 2:
+                    blocked = True
+                    break
+            if blocked:
+                continue  # Skip this hex
         
         if victims:
             # Can steal from any victim

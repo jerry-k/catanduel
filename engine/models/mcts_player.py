@@ -14,8 +14,8 @@ import random
 from typing import List, Dict, Optional, Tuple
 from dataclasses import dataclass, field
 
-from models.player import Player
-from models.enums import (
+from engine.models.player import Player
+from engine.models.enums import (
     Action, ActionType,
     PLAYER_0, PLAYER_1
 )
@@ -23,8 +23,8 @@ from models.enums import (
 # Type checking
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from game import Game
-    from state import GameState
+    from engine.game import Game
+    from engine.state import GameState
 
 
 @dataclass

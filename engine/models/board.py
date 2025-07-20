@@ -9,12 +9,12 @@ from typing import Dict, List, Set, Tuple, Optional
 from collections import defaultdict
 import random
 
-from .enums import (
+from engine.models.enums import (
     SETTLEMENT, CITY, ROAD,
     PLAYER_0, PLAYER_1,
     HEX_TYPE_DESERT
 )
-from colonist_map import (
+from engine.colonist_map import (
     HEX_TO_CORNERS, HEX_TO_EDGES,
     CORNER_ADJACENCY, EDGE_TO_CORNERS,
     get_corner_hexes, get_connected_edges,

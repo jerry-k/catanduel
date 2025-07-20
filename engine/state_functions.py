@@ -10,7 +10,7 @@ Based on catanatron's state_functions.py but simplified for 2 players.
 import random
 from typing import List, Optional, Tuple, Set
 
-from models.enums import (
+from engine.models.enums import (
     # Resources
     WOOD, BRICK, SHEEP, WHEAT, ORE, RESOURCES,
     # Development cards
@@ -27,8 +27,8 @@ from models.enums import (
     # Board
     HEX_TYPE_DESERT
 )
-from state import GameState, PlayerState
-from colonist_map import (
+from engine.state import GameState, PlayerState
+from engine.colonist_map import (
     HEX_TO_CORNERS, get_corner_hexes, PORT_CORNERS,
     PORT_TYPE_3_1, PORT_TYPE_WOOD, PORT_TYPE_BRICK,
     PORT_TYPE_SHEEP, PORT_TYPE_WHEAT, PORT_TYPE_ORE
@@ -283,6 +283,7 @@ def play_knight(state: GameState, player_id: int):
     # Robber will be moved as a separate action
     state.current_prompt = ActionPrompt.MOVE_ROBBER
     state.is_moving_robber = True
+    state.invalidate_actions_cache()
 
 
 def play_year_of_plenty(state: GameState, player_id: int, resource1: int, resource2: int):
@@ -375,6 +376,7 @@ def roll_dice(state: GameState) -> Tuple[int, int]:
     total = die1 + die2
     
     state.dice_rolled = True
+    state.last_dice_roll = (die1, die2)
     
     if total == 7:
         # Save whose turn it is
@@ -391,8 +393,11 @@ def roll_dice(state: GameState) -> Tuple[int, int]:
             state.current_player = discarders.index(True)
             state.current_prompt = ActionPrompt.DISCARD
             state.is_discarding = True
+            state.invalidate_actions_cache()
         else:
             # No one needs to discard, move to robber
+            # Make sure current_player is the turn player
+            state.current_player = state.current_turn_player
             state.is_moving_robber = True
             check_friendly_robber(state)
     else:
@@ -426,15 +431,12 @@ def distribute_resources(state: GameState, dice_total: int):
 
 def check_friendly_robber(state: GameState):
     """Check if friendly robber rule applies and set prompt."""
-    # Friendly robber: Can't move robber if no one has 3+ points
-    has_enough_points = any(p.public_vps >= 3 for p in state.players)
+    # Friendly robber: Always allow moving robber, but restrict placement
+    # The action generation will handle filtering valid hexes
+    state.current_prompt = ActionPrompt.MOVE_ROBBER
     
-    if has_enough_points:
-        state.current_prompt = ActionPrompt.MOVE_ROBBER
-    else:
-        # Robber doesn't activate, return to normal play
-        state.current_prompt = ActionPrompt.PLAY_TURN
-        state.is_moving_robber = False
+    # Invalidate action cache when prompt changes
+    state.invalidate_actions_cache()
 
 
 def move_robber(state: GameState, hex_id: int, victim_id: Optional[int]) -> Optional[int]:
@@ -455,6 +457,7 @@ def move_robber(state: GameState, hex_id: int, victim_id: Optional[int]) -> Opti
     # Return to normal play
     state.current_prompt = ActionPrompt.PLAY_TURN
     state.is_moving_robber = False
+    state.invalidate_actions_cache()
     
     return stolen
 
@@ -562,6 +565,7 @@ def start_turn(state: GameState):
     # Reset turn state
     player.has_played_dev_card = False
     state.dice_rolled = False
+    # Don't clear last_dice_roll - keep it for UI display
     state.current_prompt = ActionPrompt.PLAY_TURN
     
     # Clear special states

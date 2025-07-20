@@ -9,8 +9,8 @@ import time
 from typing import List, Tuple, Optional, Dict
 from math import inf
 
-from models.player import Player
-from models.enums import (
+from engine.models.player import Player
+from engine.models.enums import (
     Action, ActionType,
     SETTLEMENT, CITY, ROAD,
     WOOD, BRICK, SHEEP, WHEAT, ORE,
@@ -21,8 +21,8 @@ from models.enums import (
 # Type checking
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from game import Game
-    from state import GameState
+    from engine.game import Game
+    from engine.state import GameState
 
 
 class MinimaxPlayer(Player):
@@ -252,7 +252,7 @@ class MinimaxPlayer(Player):
     
     def _count_port_access(self, state: "GameState", player_id: int) -> int:
         """Count number of different port types player has access to."""
-        from colonist_map import PORT_CORNERS
+        from engine.colonist_map import PORT_CORNERS
         
         port_types = set()
         buildings = state.board.get_player_buildings(player_id)

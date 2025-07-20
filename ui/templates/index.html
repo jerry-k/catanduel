@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catan 1v1</title>
+    <link rel="stylesheet" href="/static/css/game.css">
+</head>
+<body>
+    <div id="game-container">
+        <!-- Main Game Area -->
+        <div id="main-content">
+            <!-- Left side: Board -->
+            <div id="board-area">
+                <div id="board-container">
+                    <svg id="game-board" width="900" height="650" viewBox="0 0 900 650">
+                        <!-- Board will be drawn here by JavaScript -->
+                    </svg>
+                    
+                    <!-- Dice Display -->
+                    <div id="dice-container">
+                        <img id="dice1" src="/assets/dice_1.f5a1a69c3529b5b5ffc5.svg" alt="Dice 1">
+                        <img id="dice2" src="/assets/dice_1.f5a1a69c3529b5b5ffc5.svg" alt="Dice 2">
+                    </div>
+                </div>
+                
+                <!-- Bottom Bar -->
+                <div id="bottom-bar">
+                    <!-- Left side: Resources -->
+                    <div id="resource-bar">
+                        <div id="resource-cards">
+                            <!-- Resource cards will be dynamically added here -->
+                        </div>
+                        <div class="divider"></div>
+                        <div id="dev-cards">
+                            <!-- Dev cards will be dynamically added here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Middle: Action Buttons -->
+                    <div id="action-buttons">
+                        <button id="buy-dev-card" class="action-btn" title="Buy Development Card (1 🌾 1 🪨 1 🐑)">
+                            <img src="/assets/card_devcardback.92569a1abd04a8c1c17e.svg" alt="Dev Card">
+                            <span>Buy Dev Card</span>
+                        </button>
+                        <button id="buy-road" class="action-btn" title="Build Road (1 🧱 1 🌲)">
+                            <img src="/assets/road_red.41c6cbd9278108542715.svg" alt="Road">
+                            <span>Build Road</span>
+                        </button>
+                        <button id="buy-settlement" class="action-btn" title="Build Settlement (1 🧱 1 🌾 1 🌲 1 🐑)">
+                            <img src="/assets/settlement_red.22949197b57f9cfd968b.svg" alt="Settlement">
+                            <span>Build Settlement</span>
+                        </button>
+                        <button id="buy-city" class="action-btn" title="Upgrade to City (3 🪨 2 🌾)">
+                            <img src="/assets/city_red.991ae0c7a0b95da9811d.svg" alt="City">
+                            <span>Build City</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Right side: Other Actions -->
+                    <div id="actions-panel">
+                        <div id="actions-list">
+                            <!-- Other actions like Roll Dice, End Turn -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right side: Stats and Log -->
+            <div id="side-panel">
+                <!-- Player Stats -->
+                <div id="player-stats">
+                    <div class="player-stat" id="player-0-stats">
+                        <div class="player-name player-red">Red Player</div>
+                        <div class="stat-row">
+                            <span class="stat-icon">🏆</span>
+                            <span class="stat-value" data-stat="vp">0</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-icon">📦</span>
+                            <span class="stat-value" data-stat="resources">0</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-icon">🃏</span>
+                            <span class="stat-value" data-stat="dev-cards">0</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-icon">⚔️</span>
+                            <span class="stat-value" data-stat="knights">0</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-icon">🛤️</span>
+                            <span class="stat-value" data-stat="road-length">0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="player-stat" id="player-1-stats">
+                        <div class="player-name player-blue">Blue Player</div>
+                        <div class="stat-row">
+                            <span class="stat-icon">🏆</span>
+                            <span class="stat-value" data-stat="vp">0</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-icon">📦</span>
+                            <span class="stat-value" data-stat="resources">0</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-icon">🃏</span>
+                            <span class="stat-value" data-stat="dev-cards">0</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-icon">⚔️</span>
+                            <span class="stat-value" data-stat="knights">0</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-icon">🛤️</span>
+                            <span class="stat-value" data-stat="road-length">0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Event Log -->
+                <div id="event-log">
+                    <h3>Game Log</h3>
+                    <div id="log-messages">
+                        <!-- Events will be logged here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Start Modal -->
+    <div id="game-modal" class="modal">
+        <div class="modal-content">
+            <h2>Start New Game</h2>
+            <div class="form-group">
+                <label for="game-mode">Game Mode:</label>
+                <select id="game-mode">
+                    <option value="pve">Human vs AI</option>
+                    <option value="eve">AI vs AI</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="game-seed">Seed (optional):</label>
+                <input type="text" id="game-seed" placeholder="Leave empty for random">
+            </div>
+            <button id="start-game">Start Game</button>
+        </div>
+    </div>
+    
+    <!-- Discard Modal -->
+    <div id="discard-modal" class="modal action-modal">
+        <div class="modal-content">
+            <h3>Discard Cards</h3>
+            <p id="discard-instructions">You must discard <span id="discard-count">0</span> cards</p>
+            <div id="available-resources">
+                <h4>Your Resources (click to select):</h4>
+                <div id="discard-resource-cards"></div>
+            </div>
+            <div id="discard-area">
+                <h4>Selected to Discard:</h4>
+                <div id="selected-discards"></div>
+            </div>
+            <div class="modal-actions">
+                <button id="confirm-discard" class="btn-confirm" disabled>✓ Confirm</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Trade Modal -->
+    <div id="trade-modal" class="modal action-modal">
+        <div class="modal-content">
+            <h3>Maritime Trade</h3>
+            <div id="trade-available-resources">
+                <h4>Your Resources (click to select):</h4>
+                <div id="trade-resource-cards"></div>
+            </div>
+            <div id="trade-give-section">
+                <h4>You Give:</h4>
+                <div id="selected-trade-give"></div>
+            </div>
+            <div id="trade-get-section">
+                <h4>You Get:</h4>
+                <div id="trade-options">
+                    <button class="trade-option" data-resource="0">🧱 Brick</button>
+                    <button class="trade-option" data-resource="1">🌾 Grain</button>
+                    <button class="trade-option" data-resource="2">🌲 Lumber</button>
+                    <button class="trade-option" data-resource="3">🪨 Ore</button>
+                    <button class="trade-option" data-resource="4">🐑 Wool</button>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button id="confirm-trade" class="btn-confirm" disabled>✓ Trade</button>
+                <button id="cancel-trade" class="btn-cancel">✗ Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Year of Plenty Modal -->
+    <div id="year-of-plenty-modal" class="modal action-modal">
+        <div class="modal-content">
+            <h3>Year of Plenty</h3>
+            <p>Select 2 resources to take from the bank:</p>
+            <div id="year-of-plenty-options">
+                <button class="resource-option" data-resource="0">🧱 Brick</button>
+                <button class="resource-option" data-resource="1">🌾 Grain</button>
+                <button class="resource-option" data-resource="2">🌲 Lumber</button>
+                <button class="resource-option" data-resource="3">🪨 Ore</button>
+                <button class="resource-option" data-resource="4">🐑 Wool</button>
+            </div>
+            <div id="year-of-plenty-selected">
+                <h4>Selected: <span id="yop-count">0</span>/2</h4>
+                <div id="yop-selected-resources"></div>
+            </div>
+            <div class="modal-actions">
+                <button id="confirm-yop" class="btn-confirm" disabled>✓ Take Resources</button>
+                <button id="cancel-yop" class="btn-cancel">✗ Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Monopoly Modal -->
+    <div id="monopoly-modal" class="modal action-modal">
+        <div class="modal-content">
+            <h3>Monopoly</h3>
+            <p>Select a resource type to take from all other players:</p>
+            <div id="monopoly-options">
+                <button class="monopoly-option" data-resource="0">🧱 Brick</button>
+                <button class="monopoly-option" data-resource="1">🌾 Grain</button>
+                <button class="monopoly-option" data-resource="2">🌲 Lumber</button>
+                <button class="monopoly-option" data-resource="3">🪨 Ore</button>
+                <button class="monopoly-option" data-resource="4">🐑 Wool</button>
+            </div>
+            <div class="modal-actions">
+                <button id="confirm-monopoly" class="btn-confirm" disabled>✓ Play Monopoly</button>
+                <button id="cancel-monopoly" class="btn-cancel">✗ Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/game.js"></script>
+</body>
+</html>

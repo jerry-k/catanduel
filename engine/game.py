@@ -14,7 +14,7 @@ from typing import List, Optional, Tuple, Dict
 import random
 from copy import deepcopy
 
-from models.enums import (
+from engine.models.enums import (
     Action, ActionType, ActionPrompt,
     PLAYER_0, PLAYER_1,
     VICTORY_POINTS_TO_WIN,
@@ -25,10 +25,10 @@ from models.enums import (
     # For debugging
     RESOURCES, DEVELOPMENT_CARDS
 )
-from models.player import Player
-from models.actions import generate_actions
-from state import GameState
-import state_functions as sf
+from engine.models.player import Player
+from engine.models.actions import generate_actions
+from engine.state import GameState
+import engine.state_functions as sf
 
 
 class Game:

@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 import random
 from copy import deepcopy
 
-from models.enums import (
+from engine.models.enums import (
     # Resources
     WOOD, BRICK, SHEEP, WHEAT, ORE, RESOURCES,
     # Development cards
@@ -29,8 +29,8 @@ from models.enums import (
     # Board
     HEX_TYPE_DESERT
 )
-from models.board import Board
-from colonist_map import (
+from engine.models.board import Board
+from engine.colonist_map import (
     STANDARD_PORTS, PORT_EDGES, HEX_TO_CORNERS,
     get_adjacent_hexes, ALL_HEX_IDS,
     STANDARD_RESOURCES, STANDARD_NUMBERS
@@ -129,6 +129,7 @@ class GameState:
     current_player: int = PLAYER_0
     current_turn_player: int = PLAYER_0  # Whose turn it actually is
     dice_rolled: bool = False
+    last_dice_roll: Optional[Tuple[int, int]] = None  # (die1, die2)
     current_prompt: ActionPrompt = ActionPrompt.BUILD_INITIAL_SETTLEMENT
     turn_number: int = 0
     
@@ -182,6 +183,7 @@ class GameState:
         new_state.current_player = self.current_player
         new_state.current_turn_player = self.current_turn_player
         new_state.dice_rolled = self.dice_rolled
+        new_state.last_dice_roll = self.last_dice_roll
         new_state.current_prompt = self.current_prompt
         new_state.turn_number = self.turn_number
         
