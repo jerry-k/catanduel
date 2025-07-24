@@ -59,7 +59,7 @@ def new_game():
                 'player': acting_player
             }
             if action.value is not None:
-                if action.action_type.name in ['BUILD_SETTLEMENT', 'BUILD_INITIAL_SETTLEMENT']:
+                if action.action_type.name in ['BUILD_SETTLEMENT', 'BUILD_INITIAL_SETTLEMENT', 'BUILD_CITY']:
                     action_data['corner'] = action.value
                 elif action.action_type.name in ['BUILD_ROAD', 'BUILD_INITIAL_ROAD']:
                     action_data['edge'] = action.value
@@ -149,7 +149,7 @@ def get_game_state(game_id):
                     action_data['value'] = action.value
             else:
                 # Handle single values
-                if action.action_type.name in ['BUILD_SETTLEMENT', 'BUILD_INITIAL_SETTLEMENT']:
+                if action.action_type.name in ['BUILD_SETTLEMENT', 'BUILD_INITIAL_SETTLEMENT', 'BUILD_CITY']:
                     action_data['corner'] = action.value
                 elif action.action_type.name in ['BUILD_ROAD', 'BUILD_INITIAL_ROAD']:
                     action_data['edge'] = action.value
@@ -159,7 +159,7 @@ def get_game_state(game_id):
     
     # Check game over
     game_over = game.is_over()
-    winner = game.get_winner() if game_over else None
+    winner = game.state.get_winner() if game_over else None
     
     return jsonify({
         'state': serialize_state(game),
@@ -192,6 +192,12 @@ def execute_action(game_id):
             value = action_data['edge']
         elif 'hex' in action_data and 'victim' in action_data:
             value = (action_data['hex'], action_data['victim'])
+        elif 'resource' in action_data:
+            # Handle monopoly card - UI sends 'resource' instead of 'value'
+            value = action_data['resource']
+        elif 'resources' in action_data:
+            # Handle year of plenty - UI sends 'resources' array instead of 'value'
+            value = tuple(action_data['resources'])
         elif 'value' in action_data:
             value = action_data['value']
             # Convert list to tuple for MARITIME_TRADE
@@ -200,11 +206,56 @@ def execute_action(game_id):
             
         action = Action(action_type, value)
         
+        # Store state before monopoly action to calculate resources taken
+        opponent_resources_before = None
+        if action_type == ActionType.PLAY_MONOPOLY:
+            acting_player = game.state.current_player
+            opponent_id = 1 - acting_player
+            opponent_resources_before = game.state.players[opponent_id].resources[value]
+        
         # Execute the action
         success = game.execute(action)
         
         if not success:
             return jsonify({'error': 'Invalid action'}), 400
+            
+        # Generate events based on action type
+        events = []
+        player = action_data.get('player', 0)
+        
+        if action_type == ActionType.PLAY_YEAR_OF_PLENTY:
+            # Count resources taken
+            resources_taken = {}
+            resource_names = ['lumber', 'brick', 'wool', 'grain', 'ore']
+            for res_idx in value:
+                res_name = resource_names[res_idx]
+                resources_taken[res_name] = resources_taken.get(res_name, 0) + 1
+            
+            events.append({
+                'type': 'YEAR_OF_PLENTY_PLAYED',
+                'player': player,
+                'resources': resources_taken
+            })
+        elif action_type == ActionType.PLAY_MONOPOLY:
+            # Calculate total taken from other players
+            resource_names = ['lumber', 'brick', 'wool', 'grain', 'ore']
+            total_taken = opponent_resources_before if opponent_resources_before is not None else 0
+            events.append({
+                'type': 'MONOPOLY_PLAYED',
+                'player': player,
+                'resource': resource_names[value],
+                'total_taken': total_taken
+            })
+        elif action_type == ActionType.PLAY_KNIGHT_CARD:
+            events.append({
+                'type': 'KNIGHT_PLAYED',
+                'player': player
+            })
+        elif action_type == ActionType.PLAY_ROAD_BUILDING:
+            events.append({
+                'type': 'ROAD_BUILDING_PLAYED',
+                'player': player
+            })
             
         # Get updated state
         legal_actions = []
@@ -225,7 +276,7 @@ def execute_action(game_id):
                         # For other tuples (like MARITIME_TRADE), keep as value
                         action_dict['value'] = action.value
                 else:
-                    if action.action_type.name in ['BUILD_SETTLEMENT', 'BUILD_INITIAL_SETTLEMENT']:
+                    if action.action_type.name in ['BUILD_SETTLEMENT', 'BUILD_INITIAL_SETTLEMENT', 'BUILD_CITY']:
                         action_dict['corner'] = action.value
                     elif action.action_type.name in ['BUILD_ROAD', 'BUILD_INITIAL_ROAD']:
                         action_dict['edge'] = action.value
@@ -234,13 +285,13 @@ def execute_action(game_id):
             legal_actions.append(action_dict)
         
         game_over = game.is_over()
-        winner = game.get_winner() if game_over else None
+        winner = game.state.get_winner() if game_over else None
         
         return jsonify({
             'success': True,
             'state': serialize_state(game),
             'legal_actions': legal_actions,
-            'events': [],  # TODO: Track events if needed
+            'events': events,
             'game_over': game_over,
             'winner': winner,
             'ai_thinking': acting_player == 1
@@ -289,16 +340,16 @@ def serialize_state(game):
     for edge_id, port_type in state.port_edges.items():
         ports[str(edge_id)] = port_type_map.get(port_type, '3:1')
     
-    # Convert resources
+    # Convert resources - no mapping needed since UI now uses engine order
     resources = {}
     for player_id in range(2):
         player_res = state.players[player_id].resources
         resources[str(player_id)] = {
-            '0': player_res[1],  # BRICK
-            '1': player_res[3],  # GRAIN/WHEAT
-            '2': player_res[0],  # LUMBER/WOOD
-            '3': player_res[4],  # ORE
-            '4': player_res[2]   # WOOL/SHEEP
+            '0': player_res[0],  # WOOD
+            '1': player_res[1],  # BRICK
+            '2': player_res[2],  # SHEEP
+            '3': player_res[3],  # WHEAT
+            '4': player_res[4]   # ORE
         }
     
     # Convert buildings to corners format
@@ -355,6 +406,10 @@ def serialize_state(game):
             '0': state.players[0].public_vps,
             '1': state.players[1].public_vps
         },
+        'hidden_vps': {
+            '0': state.players[0].hidden_vps,  # Human player can see their own hidden VPs
+            '1': 0  # AI's hidden VPs are not revealed to human player
+        },
         'robber_tile': state.board.robber_hex,
         'dice_rolled': state.last_dice_roll if state.last_dice_roll else False,
         'edges': edges,
@@ -368,8 +423,8 @@ def serialize_state(game):
             '1': state.players[1].knights_played
         },
         'road_lengths': {
-            '0': state.board.longest_road_length if state.board.longest_road_player == 0 else 0,
-            '1': state.board.longest_road_length if state.board.longest_road_player == 1 else 0
+            '0': state.board.get_player_road_length(0),
+            '1': state.board.get_player_road_length(1)
         }
     }
 

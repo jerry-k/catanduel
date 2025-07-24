@@ -323,8 +323,8 @@ def serialize_state(adapter: CatanDuelAdapter):
         'corners': corners,
         'dev_cards': dev_cards,
         'dev_cards_detail': dev_cards_detail,
-        'longest_road_player': ui_state.players[0].has_longest_road if ui_state.players[0].has_longest_road else (1 if ui_state.players[1].has_longest_road else None),
-        'largest_army_player': ui_state.players[0].has_largest_army if ui_state.players[0].has_largest_army else (1 if ui_state.players[1].has_largest_army else None),
+        'longest_road_player': 0 if ui_state.players[0].has_longest_road else (1 if ui_state.players[1].has_longest_road else None),
+        'largest_army_player': 0 if ui_state.players[0].has_largest_army else (1 if ui_state.players[1].has_largest_army else None),
         'knights_played': {
             '0': ui_state.players[0].knights_played,
             '1': ui_state.players[1].knights_played

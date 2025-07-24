@@ -518,11 +518,19 @@ def maritime_trade(state: GameState, player_id: int, give_resource: int, give_am
     if give_amount == 4:
         valid_ratio = True
     
-    # Check ports
+    # Check ports - build port corners from game state instead of using global
+    from engine.colonist_map import EDGE_TO_CORNERS
+    port_corners = {}
+    for edge_id, port_type in state.port_edges.items():
+        if edge_id in EDGE_TO_CORNERS:
+            corner1, corner2 = EDGE_TO_CORNERS[edge_id]
+            port_corners[corner1] = port_type
+            port_corners[corner2] = port_type
+    
     for building_corner in state.board.get_player_buildings(player_id)[SETTLEMENT] + \
                           state.board.get_player_buildings(player_id)[CITY]:
-        if building_corner in PORT_CORNERS:
-            port_type = PORT_CORNERS[building_corner]
+        if building_corner in port_corners:
+            port_type = port_corners[building_corner]
             
             if port_type == PORT_TYPE_3_1 and give_amount == 3:
                 valid_ratio = True
@@ -556,13 +564,8 @@ def maritime_trade(state: GameState, player_id: int, give_resource: int, give_am
 
 def start_turn(state: GameState):
     """Start a new turn."""
-    # Move bought dev cards to regular hand
+    # Reset turn state for the new current player
     player = state.current_player_state()
-    for i in range(5):
-        player.dev_cards[i] += player.dev_cards_bought_this_turn[i]
-        player.dev_cards_bought_this_turn[i] = 0
-    
-    # Reset turn state
     player.has_played_dev_card = False
     state.dice_rolled = False
     # Don't clear last_dice_roll - keep it for UI display
@@ -579,6 +582,12 @@ def start_turn(state: GameState):
 
 def end_turn(state: GameState):
     """End the current turn."""
+    # Move bought dev cards to regular hand for the player ending their turn
+    player = state.current_player_state()
+    for i in range(5):
+        player.dev_cards[i] += player.dev_cards_bought_this_turn[i]
+        player.dev_cards_bought_this_turn[i] = 0
+    
     # Switch players
     state.current_player = 1 - state.current_player
     state.current_turn_player = state.current_player

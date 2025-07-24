@@ -84,7 +84,7 @@ EDGE_TO_HEXES: Dict[int, List[int]] = {}
 CORNER_ADJACENCY: Dict[int, List[int]] = {
     0: [1, 5],
     1: [0, 2, 46],
-    2: [1, 3, 27, 47],
+    2: [1, 3, 47],
     3: [2, 4, 6],
     4: [3, 5, 9],
     5: [0, 4],
@@ -109,7 +109,7 @@ CORNER_ADJACENCY: Dict[int, List[int]] = {
     24: [23, 25, 29],
     25: [19, 24],
     26: [23, 27, 33],
-    27: [2, 26, 28, 32, 48],
+    27: [26, 28, 32],
     28: [27, 29],
     29: [24, 28],
     30: [31, 33, 37],
@@ -130,7 +130,7 @@ CORNER_ADJACENCY: Dict[int, List[int]] = {
     45: [42, 44, 46],
     46: [1, 45],
     47: [2, 44, 48],
-    48: [27, 47, 49, 53],
+    48: [47, 49, 53],
     49: [6, 48, 50],
     50: [14, 49, 51],
     51: [22, 50, 52],
@@ -200,7 +200,7 @@ EDGE_TO_CORNERS: Dict[int, Tuple[int, int]] = {
     57: (44, 47),
     58: (47, 2),
     59: (1, 46),
-    60: (27, 48),
+    60: (47, 48),
     61: (48, 49),
     62: (49, 6),
     63: (49, 50),
@@ -365,13 +365,15 @@ def can_build_settlement(corner_id: int, occupied_corners: Set[int]) -> bool:
     return True
 
 
-def can_build_road(edge_id: int, player_roads: Set[int], player_buildings: Set[int]) -> bool:
+def can_build_road(edge_id: int, player_roads: Set[int], player_buildings: Set[int], 
+                   all_buildings: Optional[Dict[int, Tuple[int, int]]] = None) -> bool:
     """
     Check if a road can be built on this edge.
     
     Rules:
     - Edge must be unoccupied
     - Must connect to player's existing road or building
+    - Cannot pass through opponent's settlements/cities
     """
     corner1, corner2 = EDGE_TO_CORNERS.get(edge_id, (-1, -1))
     
@@ -381,6 +383,12 @@ def can_build_road(edge_id: int, player_roads: Set[int], player_buildings: Set[i
     
     # Check if connected to existing roads
     for corner in [corner1, corner2]:
+        # If all_buildings provided, check if corner has opponent building
+        if all_buildings and corner in all_buildings:
+            # Corner has a building - can only connect if it's ours
+            if corner not in player_buildings:
+                continue  # Skip this corner - has opponent building
+        
         for edge in get_connected_edges(corner):
             if edge != edge_id and edge in player_roads:
                 return True

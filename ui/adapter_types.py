@@ -150,6 +150,7 @@ class UIPlayer:
     has_longest_road: bool = False
     has_largest_army: bool = False
     knights_played: int = 0
+    longest_road_length: int = 0
     
     # UI specific
     is_active: bool = False

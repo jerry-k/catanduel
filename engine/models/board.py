@@ -163,6 +163,7 @@ class Board:
         Requirements:
         - Edge is unoccupied
         - Connects to player's road network or building
+        - Cannot pass through opponent's settlements/cities
         """
         if edge_id in self.roads:
             return False
@@ -177,7 +178,7 @@ class Board:
             if p == player_id
         }
         
-        return map_can_build_road(edge_id, player_roads, player_buildings)
+        return map_can_build_road(edge_id, player_roads, player_buildings, self.buildings)
     
     def build_road(self, player_id: int, edge_id: int):
         """Build a road."""
@@ -241,6 +242,47 @@ class Board:
         """Get all roads owned by a player."""
         return [edge_id for edge_id, owner in self.roads.items() if owner == player_id]
     
+    def get_player_road_length(self, player_id: int) -> int:
+        """
+        Calculate the longest road length for a specific player.
+        
+        Args:
+            player_id: The player ID (0 or 1)
+            
+        Returns:
+            The length of the player's longest road
+        """
+        # Build adjacency graph for this player's roads
+        road_graph = defaultdict(set)
+        player_roads = self.get_player_roads(player_id)
+        
+        for edge_id in player_roads:
+            corner1, corner2 = EDGE_TO_CORNERS[edge_id]
+            
+            # Check if path is blocked by opponent's building
+            # Player's own settlements do NOT block their roads
+            blocked1 = self._is_corner_blocked(corner1, player_id)
+            blocked2 = self._is_corner_blocked(corner2, player_id)
+            
+            # Always add bidirectional connections for the player's own roads
+            # Opponent settlements block the path at that corner
+            if not blocked1 and not blocked2:
+                # Both corners are free or have player's own buildings
+                road_graph[corner1].add(corner2)
+                road_graph[corner2].add(corner1)
+            elif not blocked1 and blocked2:
+                # corner2 is blocked by opponent, so it's a dead end
+                road_graph[corner1].add(corner2)
+                # Note: we don't add the reverse connection from corner2
+            elif blocked1 and not blocked2:
+                # corner1 is blocked by opponent, so it's a dead end
+                road_graph[corner2].add(corner1)
+                # Note: we don't add the reverse connection from corner1
+            # If both blocked by opponents, road doesn't contribute
+        
+        # Find longest path in the graph
+        return self._find_longest_path(road_graph)
+    
     def _update_longest_road(self):
         """
         Recalculate longest road for both players.
@@ -249,30 +291,8 @@ class Board:
         path in each player's road network.
         """
         for player_id in [PLAYER_0, PLAYER_1]:
-            # Build adjacency graph for this player's roads
-            road_graph = defaultdict(set)
-            player_roads = self.get_player_roads(player_id)
-            
-            for edge_id in player_roads:
-                corner1, corner2 = EDGE_TO_CORNERS[edge_id]
-                
-                # Check if path is blocked by opponent's building
-                blocked1 = self._is_corner_blocked(corner1, player_id)
-                blocked2 = self._is_corner_blocked(corner2, player_id)
-                
-                if not blocked1 and not blocked2:
-                    road_graph[corner1].add(corner2)
-                    road_graph[corner2].add(corner1)
-                elif not blocked1:
-                    # corner2 is blocked, so it's a dead end
-                    road_graph[corner1].add(corner2)
-                elif not blocked2:
-                    # corner1 is blocked, so it's a dead end
-                    road_graph[corner2].add(corner1)
-                # If both blocked, road doesn't contribute
-            
-            # Find longest path in the graph
-            longest = self._find_longest_path(road_graph)
+            # Get longest path for this player
+            longest = self.get_player_road_length(player_id)
             
             # Update longest road if this player has 5+ and is longest
             if longest >= 5:
@@ -294,31 +314,35 @@ class Board:
         """
         Find the longest path in an undirected graph.
         
-        Uses DFS from each node to find the longest possible path.
+        In Catan, the longest road allows revisiting corners but not edges.
+        Uses DFS tracking visited edges instead of visited nodes.
         """
         if not graph:
             return 0
         
-        def dfs(node: int, visited: Set[int]) -> int:
-            visited.add(node)
+        def dfs(node: int, visited_edges: Set[Tuple[int, int]]) -> int:
+            """DFS that tracks visited edges instead of nodes."""
             max_length = 0
             
             for neighbor in graph[node]:
-                if neighbor not in visited:
-                    length = dfs(neighbor, visited)
+                # Create edge tuple (smaller_id, larger_id) for consistency
+                edge = (min(node, neighbor), max(node, neighbor))
+                
+                if edge not in visited_edges:
+                    visited_edges.add(edge)
+                    length = 1 + dfs(neighbor, visited_edges)
                     max_length = max(max_length, length)
+                    visited_edges.remove(edge)
             
-            visited.remove(node)
-            return max_length + 1
+            return max_length
         
         # Try starting from each node
         max_path = 0
-        for start_node in list(graph.keys()):  # Create a list to avoid dictionary iteration issues
+        for start_node in list(graph.keys()):
             path_length = dfs(start_node, set())
             max_path = max(max_path, path_length)
         
-        # Convert from nodes to edges (roads)
-        return max_path - 1 if max_path > 0 else 0
+        return max_path
     
     def get_valid_robber_hexes(self) -> List[int]:
         """Get all hexes where the robber can be placed (not current position)."""

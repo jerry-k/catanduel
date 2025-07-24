@@ -3,11 +3,11 @@ const GAME_CONSTANTS = {
     CARDS_BEFORE_DISCARD: 8,
     VICTORY_POINTS_TO_WIN: 10,
     RESOURCE_PATHS: {
-        '0': '/assets/card_brick.5950ea07a7ea01bc54a5.svg',
-        '1': '/assets/card_grain.09c9d82146a64bce69b5.svg',
-        '2': '/assets/card_lumber.cf22f8083cf89c2a29e7.svg',
-        '3': '/assets/card_ore.117f64dab28e1c987958.svg',
-        '4': '/assets/card_wool.17a6dea8d559949f0ccc.svg'
+        '0': '/assets/card_lumber.cf22f8083cf89c2a29e7.svg',  // wood
+        '1': '/assets/card_brick.5950ea07a7ea01bc54a5.svg',   // brick
+        '2': '/assets/card_wool.17a6dea8d559949f0ccc.svg',    // sheep
+        '3': '/assets/card_grain.09c9d82146a64bce69b5.svg',   // wheat
+        '4': '/assets/card_ore.117f64dab28e1c987958.svg'      // ore
     },
     BUILDING_ASSETS: {
         settlement: {
@@ -325,6 +325,22 @@ async function executeAction(actionData) {
                 alert(`Game Over! ${winner} wins!`);
             }
             
+            // Check if we should auto-enter road placement mode (after Road Building)
+            if (gameState.current_player === 0 && !placementMode) {
+                const roadActions = legalActions.filter(a => a.type === 'BUILD_ROAD');
+                // If there are multiple road actions and no other building actions, likely Road Building
+                if (roadActions.length >= 2) {
+                    const otherBuildActions = legalActions.filter(a => 
+                        a.type === 'BUILD_SETTLEMENT' || a.type === 'BUILD_CITY' || 
+                        a.type === 'BUY_DEVELOPMENT_CARD');
+                    if (otherBuildActions.length === 0) {
+                        // Auto-enter road placement mode
+                        console.log('Auto-entering road placement mode for Road Building');
+                        enablePlacementMode('road');
+                    }
+                }
+            }
+            
             // Auto-advance in setup phase after placing road
             if (gameState.setup_phase && gameState.setup_road_placed && gameState.current_player === 0) {
                 // Just placed a road, auto end turn
@@ -364,6 +380,9 @@ function updateGame() {
     // Update player stats
     updatePlayerStats(0);
     updatePlayerStats(1);
+    
+    // Update building counters on buttons
+    updateBuildingCounters();
     
     // Draw board
     drawBoard();
@@ -415,19 +434,25 @@ function updateResourceBar() {
     
     // Use shared resource assets
     const cardAssets = {
-        brick: GAME_CONSTANTS.RESOURCE_PATHS['0'],
-        grain: GAME_CONSTANTS.RESOURCE_PATHS['1'],
-        lumber: GAME_CONSTANTS.RESOURCE_PATHS['2'],
-        ore: GAME_CONSTANTS.RESOURCE_PATHS['3'],
-        wool: GAME_CONSTANTS.RESOURCE_PATHS['4']
+        lumber: GAME_CONSTANTS.RESOURCE_PATHS['0'],  // wood = 0
+        brick: GAME_CONSTANTS.RESOURCE_PATHS['1'],   // brick = 1
+        wool: GAME_CONSTANTS.RESOURCE_PATHS['2'],    // sheep = 2
+        grain: GAME_CONSTANTS.RESOURCE_PATHS['3'],   // wheat = 3
+        ore: GAME_CONSTANTS.RESOURCE_PATHS['4']      // ore = 4
     };
     
-    // Only show cards for resources the player has
+    // Only show cards for resources the player has (count > 0)
     for (const [resourceKey, count] of Object.entries(resources)) {
         if (count > 0) {
             // Convert numeric resource key to resource name
-            const resourceNames = ['brick', 'grain', 'lumber', 'ore', 'wool'];
+            const resourceNames = ['lumber', 'brick', 'wool', 'grain', 'ore'];  // matches engine order: wood, brick, sheep, wheat, ore
             const resource = resourceNames[parseInt(resourceKey)] || resourceKey;
+            
+            // Create card container
+            const cardContainer = document.createElement('div');
+            cardContainer.className = 'card-container';
+            
+            // Create the card element
             const cardDiv = document.createElement('div');
             cardDiv.className = 'resource-card';
             cardDiv.dataset.resource = resourceKey; // Add data-resource attribute
@@ -444,12 +469,14 @@ function updateResourceBar() {
             img.alt = resource;
             cardDiv.appendChild(img);
             
-            const countSpan = document.createElement('span');
-            countSpan.className = 'card-count';
-            countSpan.textContent = count;
-            cardDiv.appendChild(countSpan);
+            // Add count badge
+            const countBadge = document.createElement('div');
+            countBadge.className = 'count-badge';
+            countBadge.textContent = count;
+            cardDiv.appendChild(countBadge);
             
-            resourceCardsDiv.appendChild(cardDiv);
+            cardContainer.appendChild(cardDiv);
+            resourceCardsDiv.appendChild(cardContainer);
         }
     }
     
@@ -471,35 +498,72 @@ function updateResourceBar() {
             'MONOPOLY': '/assets/card_monopoly.dfac189aaff62e271093.svg'
         };
         
-        // Show each dev card individually
+        // Group cards by type (combine regular and _NEW variants)
+        const cardGroups = {};
         for (const [cardType, count] of Object.entries(devCardDetails)) {
-            // Check if this is a newly bought card
             const isNewCard = cardType.endsWith('_NEW');
             const actualCardType = isNewCard ? cardType.replace('_NEW', '') : cardType;
             
-            for (let i = 0; i < count; i++) {
+            if (!cardGroups[actualCardType]) {
+                cardGroups[actualCardType] = {
+                    playableCount: 0,
+                    newCount: 0,
+                    totalCount: 0
+                };
+            }
+            
+            if (isNewCard) {
+                cardGroups[actualCardType].newCount += count;
+            } else {
+                cardGroups[actualCardType].playableCount += count;
+            }
+            cardGroups[actualCardType].totalCount += count;
+        }
+        
+        // Create card elements for each type
+        for (const [cardType, counts] of Object.entries(cardGroups)) {
+            // Only show cards that the player actually has
+            if (counts.totalCount > 0) {
+                // Create card container
+                const cardContainer = document.createElement('div');
+                cardContainer.className = 'card-container';
+                
                 const cardDiv = document.createElement('div');
                 cardDiv.className = 'dev-card';
-                if (isNewCard) {
-                    cardDiv.classList.add('new-card');
-                    cardDiv.title = 'Bought this turn - cannot play yet';
-                }
-                cardDiv.dataset.cardType = actualCardType;
+                cardDiv.dataset.cardType = cardType;
                 
-                // Victory point cards and new cards are not playable
-                const isPlayable = actualCardType !== 'VICTORY_POINT' && !isNewCard;
+                // Card is playable if there's at least one playable card of this type
+                const isPlayable = cardType !== 'VICTORY_POINT' && counts.playableCount > 0;
                 if (isPlayable) {
                     cardDiv.classList.add('playable');
                     cardDiv.style.cursor = 'pointer';
-                    cardDiv.onclick = () => handleDevCardClick(actualCardType);
+                    cardDiv.onclick = () => handleDevCardClick(cardType);
+                }
+                
+                // Set tooltip based on card status
+                if (cardType === 'VICTORY_POINT') {
+                    cardDiv.title = counts.totalCount === 1 ? 'Victory Point' : `${counts.totalCount} Victory Points`;
+                } else if (counts.playableCount > 0 && counts.newCount > 0) {
+                    cardDiv.title = `${counts.totalCount} ${cardType.replace('_', ' ')}s (${counts.playableCount} playable, ${counts.newCount} bought this turn)`;
+                } else if (counts.newCount > 0) {
+                    cardDiv.title = counts.newCount === 1 ? 'Bought this turn - cannot play yet' : `${counts.newCount} bought this turn - cannot play yet`;
+                } else {
+                    cardDiv.title = counts.totalCount === 1 ? 'Click to play' : `${counts.totalCount} ${cardType.replace('_', ' ')}s - Click to play`;
                 }
                 
                 const img = document.createElement('img');
-                img.src = cardAssets[actualCardType] || '/assets/card_devcardback.92569a1abd04a8c1c17e.svg';
+                img.src = cardAssets[cardType] || '/assets/card_devcardback.92569a1abd04a8c1c17e.svg';
                 img.alt = cardType;
                 cardDiv.appendChild(img);
                 
-                devCardsDiv.appendChild(cardDiv);
+                // Add count badge
+                const countBadge = document.createElement('div');
+                countBadge.className = 'count-badge';
+                countBadge.textContent = counts.totalCount;
+                cardDiv.appendChild(countBadge);
+                
+                cardContainer.appendChild(cardDiv);
+                devCardsDiv.appendChild(cardContainer);
             }
         }
     }
@@ -512,8 +576,14 @@ function updatePlayerStats(playerIndex) {
     
     const playerKey = playerIndex.toString();
     
-    // Update VP
-    statsDiv.querySelector('[data-stat="vp"]').textContent = gameState.victory_points[playerKey] || 0;
+    // Update VP - show as "visible (total)" if there are hidden VPs
+    const visibleVPs = gameState.victory_points[playerKey] || 0;
+    const hiddenVPs = gameState.hidden_vps ? (gameState.hidden_vps[playerKey] || 0) : 0;
+    const totalVPs = visibleVPs + hiddenVPs;
+    
+    // Display format: "visible (total)" if hidden VPs exist, otherwise just "visible"
+    const vpDisplay = hiddenVPs > 0 ? `${visibleVPs} (${totalVPs})` : `${visibleVPs}`;
+    statsDiv.querySelector('[data-stat="vp"]').textContent = vpDisplay;
     
     // Count total resources
     const playerResources = gameState.resources[playerKey] || {};
@@ -524,7 +594,19 @@ function updatePlayerStats(playerIndex) {
     statsDiv.querySelector('[data-stat="dev-cards"]').textContent = gameState.dev_cards[playerKey] || 0;
     
     // Update knights
-    statsDiv.querySelector('[data-stat="knights"]').textContent = gameState.knights_played ? gameState.knights_played[playerKey] || 0 : 0;
+    const knightsElement = statsDiv.querySelector('[data-stat="knights"]');
+    knightsElement.textContent = gameState.knights_played ? gameState.knights_played[playerKey] || 0 : 0;
+    
+    // Highlight if this player has largest army
+    if (gameState.largest_army_player === playerIndex) {
+        knightsElement.style.color = '#f39c12';
+        knightsElement.style.fontWeight = 'bold';
+        knightsElement.title = 'Largest Army';
+    } else {
+        knightsElement.style.color = '';
+        knightsElement.style.fontWeight = '';
+        knightsElement.title = '';
+    }
     
     // Update road length
     const roadLengthElement = statsDiv.querySelector('[data-stat="road-length"]');
@@ -550,6 +632,70 @@ function updatePlayerStats(playerIndex) {
     } else {
         nameDiv.style.textDecoration = 'none';
         nameDiv.style.textShadow = 'none';
+    }
+    
+    // Update building piece counters
+}
+
+// Update building counters on action buttons
+function updateBuildingCounters() {
+    // Count pieces for human player (player 0)
+    let roadsUsed = 0;
+    let settlementsUsed = 0;
+    let citiesUsed = 0;
+    
+    // Count roads
+    if (gameState.roads) {
+        for (const [edgeId, playerId] of Object.entries(gameState.roads)) {
+            // Handle both string and number player IDs
+            if (playerId === 0 || playerId === '0') {
+                roadsUsed++;
+            }
+        }
+    }
+    
+    // Count settlements and cities
+    if (gameState.buildings) {
+        if (Array.isArray(gameState.buildings)) {
+            // New format: buildings is an array
+            for (const building of gameState.buildings) {
+                // Check both number and string for compatibility
+                if (building.player === 0 || building.player === '0') {
+                    if (building.type === 'settlement') {
+                        settlementsUsed++;
+                    } else if (building.type === 'city') {
+                        citiesUsed++;
+                    }
+                    // Note: roads are also in the buildings array but we count them separately
+                }
+            }
+        } else {
+            // Old format: buildings is an object (for backwards compatibility)
+            for (const [cornerId, building] of Object.entries(gameState.buildings)) {
+                if (building.player === 0 || building.player === '0') {
+                    if (building.type === 'settlement') {
+                        settlementsUsed++;
+                    } else if (building.type === 'city') {
+                        citiesUsed++;
+                    }
+                }
+            }
+        }
+    }
+    
+    // Update counters (max - used)
+    const roadCounter = document.getElementById('road-counter');
+    const settlementCounter = document.getElementById('settlement-counter');
+    const cityCounter = document.getElementById('city-counter');
+    
+    if (roadCounter) {
+        roadCounter.textContent = 15 - roadsUsed;
+    }
+    if (settlementCounter) {
+        settlementCounter.textContent = 5 - settlementsUsed;
+    }
+    if (cityCounter) {
+        cityCounter.textContent = 4 - citiesUsed;
     }
 }
 
@@ -1300,9 +1446,9 @@ function highlightValidPlacements() {
                     visualLine.setAttribute('y1', pos1.y);
                     visualLine.setAttribute('x2', pos2.x);
                     visualLine.setAttribute('y2', pos2.y);
-                    visualLine.setAttribute('stroke', 'yellow');
-                    visualLine.setAttribute('stroke-width', '8');
-                    visualLine.setAttribute('stroke-opacity', '0.5');
+                    visualLine.setAttribute('stroke', '#9370DB');
+                    visualLine.setAttribute('stroke-width', '10');
+                    visualLine.setAttribute('stroke-opacity', '0.85');
                     visualLine.style.pointerEvents = 'none'; // Don't interfere with clicks
                     
                     group.appendChild(clickLine);
@@ -1316,14 +1462,9 @@ function highlightValidPlacements() {
             if (pos) {
                 const pixel = hexToPixel(pos.x, pos.y);
                 const hex = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-                const points = [];
-                for (let i = 0; i < 6; i++) {
-                    const angle = (Math.PI / 3) * i;
-                    const x = pixel.x + HEX_SIZE * Math.cos(angle);
-                    const y = pixel.y + HEX_SIZE * Math.sin(angle);
-                    points.push(`${x},${y}`);
-                }
-                hex.setAttribute('points', points.join(' '));
+                const corners = getHexCorners(pixel.x, pixel.y);
+                const points = corners.map(c => `${c.x},${c.y}`).join(' ');
+                hex.setAttribute('points', points);
                 hex.setAttribute('fill', 'red');
                 hex.setAttribute('fill-opacity', '0.3');
                 hex.setAttribute('stroke', 'darkred');
@@ -1357,7 +1498,7 @@ function logEvent(event) {
     let playerClass = '';
     
     // Define resourceEmojis array once at the top
-    const resourceEmojis = ['🧱', '🌾', '🌲', '🪨', '🐑'];
+    const resourceEmojis = ['🌲', '🧱', '🐑', '🌾', '🪨'];  // wood, brick, sheep, wheat, ore
     
     switch (event.type) {
         case 'DICE_ROLLED':
@@ -1367,7 +1508,7 @@ function logEvent(event) {
         case 'RESOURCES_PRODUCED':
         case 'RESOURCES_GAINED':
             // Create custom HTML for resources with icons
-            const resourceNames = ['brick', 'grain', 'lumber', 'ore', 'wool'];
+            const resourceNames = ['lumber', 'brick', 'wool', 'grain', 'ore'];  // matches engine order
             const resourceEmojis = {
                 brick: '🧱',
                 grain: '🌾', 
@@ -1433,8 +1574,15 @@ function logEvent(event) {
             break;
         case 'YEAR_OF_PLENTY_PLAYED':
             const yopResources = [];
+            const resourceEmojiMap = {
+                lumber: '🌲',
+                brick: '🧱',
+                wool: '🐑',
+                grain: '🌾',
+                ore: '🪨'
+            };
             for (const [res, count] of Object.entries(event.resources || {})) {
-                const emoji = resourceEmojis[res] || '?';
+                const emoji = resourceEmojiMap[res] || '?';
                 for (let i = 0; i < count; i++) {
                     yopResources.push(emoji);
                 }
@@ -1443,7 +1591,14 @@ function logEvent(event) {
             playerClass = event.player === 0 ? 'red' : 'blue';
             break;
         case 'MONOPOLY_PLAYED':
-            const monopolyEmoji = resourceEmojis[event.resource] || '?';
+            const monopolyEmojiMap = {
+                lumber: '🌲',
+                brick: '🧱',
+                wool: '🐑',
+                grain: '🌾',
+                ore: '🪨'
+            };
+            const monopolyEmoji = monopolyEmojiMap[event.resource] || resourceEmojis[event.resource] || '?';
             message = `Played Monopoly on ${monopolyEmoji}, took ${event.total_taken || 0} cards`;
             playerClass = event.player === 0 ? 'red' : 'blue';
             break;
@@ -1675,7 +1830,8 @@ function makeResourceCardsClickable(clickable) {
 // Handle resource card click during discard/trade
 function handleResourceCardClick(card) {
     const resourceType = card.dataset.resource;
-    const currentCount = parseInt(card.querySelector('.card-count').textContent) || 0;
+    const countBadge = card.querySelector('.count-badge') || card.querySelector('.card-count');
+    const currentCount = parseInt(countBadge.textContent) || 0;
     
     console.log('Resource card clicked:', resourceType, 'count:', currentCount, 'discardModalOpen:', discardModalOpen, 'tradeModalOpen:', tradeModalOpen);
     
@@ -1783,9 +1939,30 @@ function updateTradeConfirmButton() {
     const confirmBtn = document.getElementById('confirm-trade');
     const totalGive = Object.values(selectedTradeGive).reduce((a, b) => a + b, 0);
     
-    // Check if valid trade ratio (4:1 bank trade for now)
-    // TODO: Check port trades
-    confirmBtn.disabled = totalGive < 4 || !selectedTradeGet;
+    // Check if this trade matches any available maritime trade action
+    if (!selectedTradeGet || totalGive === 0) {
+        confirmBtn.disabled = true;
+        return;
+    }
+    
+    // Get the resource being traded
+    const giveResource = Object.keys(selectedTradeGive)[0];
+    if (!giveResource) {
+        confirmBtn.disabled = true;
+        return;
+    }
+    
+    // Check legal maritime trade actions
+    const maritimeActions = legalActions.filter(a => a.type === 'MARITIME_TRADE');
+    const matchingAction = maritimeActions.find(action => {
+        if (!action.value || action.value.length !== 3) return false;
+        const [actionGiveRes, actionGiveCount, actionGetRes] = action.value;
+        return actionGiveRes === parseInt(giveResource) && 
+               actionGiveCount === totalGive && 
+               actionGetRes === parseInt(selectedTradeGet);
+    });
+    
+    confirmBtn.disabled = !matchingAction;
 }
 
 // Initialize modal event handlers
@@ -1818,18 +1995,8 @@ function initModalHandlers() {
         const discardArray = [0, 0, 0, 0, 0];
         for (const [key, value] of Object.entries(selectedDiscards)) {
             const resourceIndex = parseInt(key);
-            // Map UI indices to engine indices
-            // UI: 0=brick, 1=grain, 2=lumber, 3=ore, 4=wool
-            // Engine: 0=wood, 1=brick, 2=sheep, 3=wheat, 4=ore
-            let engineIndex;
-            switch(resourceIndex) {
-                case 0: engineIndex = 1; break; // brick
-                case 1: engineIndex = 3; break; // grain/wheat
-                case 2: engineIndex = 0; break; // lumber/wood
-                case 3: engineIndex = 4; break; // ore
-                case 4: engineIndex = 2; break; // wool/sheep
-            }
-            discardArray[engineIndex] = value;
+            // Resources are now properly mapped: 0=wood, 1=brick, 2=sheep, 3=wheat, 4=ore
+            discardArray[resourceIndex] = value;
         }
         
         const discardPayload = {
@@ -1890,19 +2057,9 @@ function initModalHandlers() {
         console.log('  Give count:', giveCount);
         console.log('  Get resource:', selectedTradeGet, '(parsed:', parseInt(selectedTradeGet), ')');
         
-        // Map UI resource indices to engine indices
-        // UI: 0=brick, 1=grain, 2=lumber, 3=ore, 4=wool
-        // Engine: 0=wood, 1=brick, 2=sheep, 3=wheat, 4=ore
-        const uiToEngine = {
-            0: 1,  // brick -> brick
-            1: 3,  // grain -> wheat
-            2: 0,  // lumber -> wood
-            3: 4,  // ore -> ore
-            4: 2   // wool -> sheep
-        };
-        
-        const engineGiveRes = uiToEngine[parseInt(giveResource)];
-        const engineGetRes = uiToEngine[parseInt(selectedTradeGet)];
+        // Resources are now properly mapped: 0=wood, 1=brick, 2=sheep, 3=wheat, 4=ore
+        const engineGiveRes = parseInt(giveResource);
+        const engineGetRes = parseInt(selectedTradeGet);
         
         console.log('Mapped to engine indices:');
         console.log('  Give:', engineGiveRes, 'Count:', giveCount);
@@ -2079,7 +2236,7 @@ function initDevCardModals() {
                 yopSelectedResources.push(resource);
                 
                 // Update UI
-                const resourceEmojis = ['🧱', '🌾', '🌲', '🪨', '🐑'];
+                const resourceEmojis = ['🌲', '🧱', '🐑', '🌾', '🪨'];  // wood, brick, sheep, wheat, ore
                 const selectedDiv = document.getElementById('yop-selected-resources');
                 const span = document.createElement('span');
                 span.textContent = resourceEmojis[resource];
@@ -2096,16 +2253,11 @@ function initDevCardModals() {
     });
     
     confirmYop.onclick = () => {
-        // Build resources object
-        const resources = {};
-        yopSelectedResources.forEach(r => {
-            resources[r] = (resources[r] || 0) + 1;
-        });
-        
+        // Send resources as array of indices
         executeAction({
             type: 'PLAY_YEAR_OF_PLENTY',
             player: 0,
-            resources: resources
+            resources: yopSelectedResources
         });
         
         yopModal.style.display = 'none';

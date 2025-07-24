@@ -41,19 +41,18 @@
                     <div id="action-buttons">
                         <button id="buy-dev-card" class="action-btn" title="Buy Development Card (1 🌾 1 🪨 1 🐑)">
                             <img src="/assets/card_devcardback.92569a1abd04a8c1c17e.svg" alt="Dev Card">
-                            <span>Buy Dev Card</span>
                         </button>
-                        <button id="buy-road" class="action-btn" title="Build Road (1 🧱 1 🌲)">
+                        <button id="buy-road" class="action-btn with-counter" title="Build Road (1 🧱 1 🌲)">
                             <img src="/assets/road_red.41c6cbd9278108542715.svg" alt="Road">
-                            <span>Build Road</span>
+                            <span class="button-counter" id="road-counter">15</span>
                         </button>
-                        <button id="buy-settlement" class="action-btn" title="Build Settlement (1 🧱 1 🌾 1 🌲 1 🐑)">
+                        <button id="buy-settlement" class="action-btn with-counter" title="Build Settlement (1 🧱 1 🌾 1 🌲 1 🐑)">
                             <img src="/assets/settlement_red.22949197b57f9cfd968b.svg" alt="Settlement">
-                            <span>Build Settlement</span>
+                            <span class="button-counter" id="settlement-counter">5</span>
                         </button>
-                        <button id="buy-city" class="action-btn" title="Upgrade to City (3 🪨 2 🌾)">
+                        <button id="buy-city" class="action-btn with-counter" title="Upgrade to City (3 🪨 2 🌾)">
                             <img src="/assets/city_red.991ae0c7a0b95da9811d.svg" alt="City">
-                            <span>Build City</span>
+                            <span class="button-counter" id="city-counter">4</span>
                         </button>
                     </div>
                     
@@ -183,11 +182,11 @@
             <div id="trade-get-section">
                 <h4>You Get:</h4>
                 <div id="trade-options">
-                    <button class="trade-option" data-resource="0">🧱 Brick</button>
-                    <button class="trade-option" data-resource="1">🌾 Grain</button>
-                    <button class="trade-option" data-resource="2">🌲 Lumber</button>
-                    <button class="trade-option" data-resource="3">🪨 Ore</button>
-                    <button class="trade-option" data-resource="4">🐑 Wool</button>
+                    <button class="trade-option" data-resource="0">🌲 Lumber</button>
+                    <button class="trade-option" data-resource="1">🧱 Brick</button>
+                    <button class="trade-option" data-resource="2">🐑 Wool</button>
+                    <button class="trade-option" data-resource="3">🌾 Grain</button>
+                    <button class="trade-option" data-resource="4">🪨 Ore</button>
                 </div>
             </div>
             <div class="modal-actions">
@@ -203,11 +202,11 @@
             <h3>Year of Plenty</h3>
             <p>Select 2 resources to take from the bank:</p>
             <div id="year-of-plenty-options">
-                <button class="resource-option" data-resource="0">🧱 Brick</button>
-                <button class="resource-option" data-resource="1">🌾 Grain</button>
-                <button class="resource-option" data-resource="2">🌲 Lumber</button>
-                <button class="resource-option" data-resource="3">🪨 Ore</button>
-                <button class="resource-option" data-resource="4">🐑 Wool</button>
+                <button class="resource-option" data-resource="0">🌲 Lumber</button>
+                <button class="resource-option" data-resource="1">🧱 Brick</button>
+                <button class="resource-option" data-resource="2">🐑 Wool</button>
+                <button class="resource-option" data-resource="3">🌾 Grain</button>
+                <button class="resource-option" data-resource="4">🪨 Ore</button>
             </div>
             <div id="year-of-plenty-selected">
                 <h4>Selected: <span id="yop-count">0</span>/2</h4>
@@ -226,11 +225,11 @@
             <h3>Monopoly</h3>
             <p>Select a resource type to take from all other players:</p>
             <div id="monopoly-options">
-                <button class="monopoly-option" data-resource="0">🧱 Brick</button>
-                <button class="monopoly-option" data-resource="1">🌾 Grain</button>
-                <button class="monopoly-option" data-resource="2">🌲 Lumber</button>
-                <button class="monopoly-option" data-resource="3">🪨 Ore</button>
-                <button class="monopoly-option" data-resource="4">🐑 Wool</button>
+                <button class="monopoly-option" data-resource="0">🌲 Lumber</button>
+                <button class="monopoly-option" data-resource="1">🧱 Brick</button>
+                <button class="monopoly-option" data-resource="2">🐑 Wool</button>
+                <button class="monopoly-option" data-resource="3">🌾 Grain</button>
+                <button class="monopoly-option" data-resource="4">🪨 Ore</button>
             </div>
             <div class="modal-actions">
                 <button id="confirm-monopoly" class="btn-confirm" disabled>✓ Play Monopoly</button>

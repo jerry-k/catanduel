@@ -27,13 +27,15 @@ from engine.models.enums import (
     # Players
     PLAYER_0, PLAYER_1,
     # Board
-    HEX_TYPE_DESERT
+    HEX_TYPE_DESERT,
+    # Port types
+    PORT_TYPE_3_1, PORT_TYPE_WOOD, PORT_TYPE_BRICK,
+    PORT_TYPE_SHEEP, PORT_TYPE_WHEAT, PORT_TYPE_ORE
 )
 from engine.colonist_map import (
     HEX_TO_CORNERS, HEX_TO_EDGES, EDGE_TO_CORNERS,
     get_corner_hexes, get_connected_edges, get_adjacent_corners,
-    PORT_CORNERS, PORT_TYPE_3_1, PORT_TYPE_WOOD, PORT_TYPE_BRICK,
-    PORT_TYPE_SHEEP, PORT_TYPE_WHEAT, PORT_TYPE_ORE
+    PORT_CORNERS
 )
 from engine.state import GameState
 
@@ -148,9 +150,8 @@ def generate_play_turn_actions(state: GameState) -> List[Action]:
         # Can play development cards before rolling
         actions.extend(generate_dev_card_actions(state))
         
-        # Must roll if no dev cards played
-        if not actions:
-            actions.append(Action(action_type=ActionType.ROLL, value=None))
+        # Always allow rolling at start of turn
+        actions.append(Action(action_type=ActionType.ROLL, value=None))
     else:
         # After rolling, can build, trade, play cards, or end turn
         actions.extend(generate_build_actions(state))
@@ -246,13 +247,21 @@ def get_trade_ratios(state: GameState, player_id: int) -> List[List[int]]:
     # Start with 4:1 for all resources
     ratios = [[4] for _ in range(5)]
     
-    # Check ports
+    # Check ports - build port corners from game state instead of using global
+    from engine.colonist_map import EDGE_TO_CORNERS
+    port_corners = {}
+    for edge_id, port_type in state.port_edges.items():
+        if edge_id in EDGE_TO_CORNERS:
+            corner1, corner2 = EDGE_TO_CORNERS[edge_id]
+            port_corners[corner1] = port_type
+            port_corners[corner2] = port_type
+    
     player_buildings = state.board.get_player_buildings(player_id)
     all_corners = player_buildings[SETTLEMENT] + player_buildings[CITY]
     
     for corner_id in all_corners:
-        if corner_id in PORT_CORNERS:
-            port_type = PORT_CORNERS[corner_id]
+        if corner_id in port_corners:
+            port_type = port_corners[corner_id]
             
             if port_type == PORT_TYPE_3_1:
                 # 3:1 port - all resources can use 3:1
@@ -294,6 +303,8 @@ def generate_dev_card_actions(state: GameState) -> List[Action]:
     # (Victory points don't need to be played)
     
     # Knight
+    # Note: dev_cards only contains playable cards (cards from previous turns)
+    # Cards bought this turn are in dev_cards_bought_this_turn (separate array)
     if player.dev_cards[KNIGHT] > 0:
         actions.append(Action(action_type=ActionType.PLAY_KNIGHT_CARD, value=None))
     
@@ -403,7 +414,7 @@ def generate_move_robber_actions(state: GameState) -> List[Action]:
     valid_hexes = state.board.get_valid_robber_hexes()
     
     # Apply friendly robber rule: can't place on hex adjacent to opponent with ≤2 VP
-    has_low_vp_opponent = any(p.public_vps <= 2 for i, p in enumerate(state.players) if i != player_id)
+    has_low_vp_opponent = any(p.actual_vps() <= 2 for i, p in enumerate(state.players) if i != player_id)
     
     for hex_id in valid_hexes:
         # Get players on this hex
@@ -417,7 +428,7 @@ def generate_move_robber_actions(state: GameState) -> List[Action]:
             # Check if any low VP opponent has buildings on this hex
             blocked = False
             for victim_id in victims:
-                if state.players[victim_id].public_vps <= 2:
+                if state.players[victim_id].actual_vps() <= 2:
                     blocked = True
                     break
             if blocked:
@@ -425,6 +436,7 @@ def generate_move_robber_actions(state: GameState) -> List[Action]:
         
         if victims:
             # Can steal from any victim
+            has_stealable_victim = False
             for victim_id in victims:
                 # Check victim has resources
                 if state.players[victim_id].total_resources() > 0:
@@ -432,6 +444,14 @@ def generate_move_robber_actions(state: GameState) -> List[Action]:
                         action_type=ActionType.MOVE_ROBBER,
                         value=(hex_id, victim_id)
                     ))
+                    has_stealable_victim = True
+            
+            # If no victim has resources, still allow moving robber there
+            if not has_stealable_victim:
+                actions.append(Action(
+                    action_type=ActionType.MOVE_ROBBER,
+                    value=(hex_id, None)
+                ))
         else:
             # No victims, just move robber
             actions.append(Action(

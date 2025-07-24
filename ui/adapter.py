@@ -240,6 +240,9 @@ class CatanDuelAdapter:
             else:
                 is_active = (state.current_player == i)
             
+            # Calculate road length for this player
+            road_length = state.board.get_player_road_length(i)
+            
             players.append(UIPlayer(
                 id=i,
                 name=self.player_names[i],
@@ -253,6 +256,7 @@ class CatanDuelAdapter:
                 has_longest_road=player_state.has_longest_road,
                 has_largest_army=player_state.has_largest_army,
                 knights_played=player_state.knights_played,
+                longest_road_length=road_length,
                 is_active=is_active,
                 is_human=(self.player_types[i] == 'human')
             ))
