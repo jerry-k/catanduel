@@ -145,6 +145,18 @@ def generate_play_turn_actions(state: GameState) -> List[Action]:
     player_id = state.current_player
     player = state.current_player_state()
     
+    # Check if we're in road building mode
+    if state.is_road_building and getattr(state, '_free_roads', 0) > 0:
+        # Only allow building roads
+        if player.roads_left > 0:
+            for edge_id in range(72):
+                if state.board.can_build_road(player_id, edge_id):
+                    actions.append(Action(
+                        action_type=ActionType.BUILD_ROAD,
+                        value=edge_id
+                    ))
+        return actions
+    
     # Check if dice have been rolled
     if not state.dice_rolled:
         # Can play development cards before rolling
@@ -413,8 +425,8 @@ def generate_move_robber_actions(state: GameState) -> List[Action]:
     # Get all valid hexes (not current position)
     valid_hexes = state.board.get_valid_robber_hexes()
     
-    # Apply friendly robber rule: can't place on hex adjacent to opponent with ≤2 VP
-    has_low_vp_opponent = any(p.actual_vps() <= 2 for i, p in enumerate(state.players) if i != player_id)
+    # Apply friendly robber rule: can't place on hex adjacent to opponent with ≤2 public VP
+    has_low_vp_opponent = any(p.public_vps <= 2 for i, p in enumerate(state.players) if i != player_id)
     
     for hex_id in valid_hexes:
         # Get players on this hex
@@ -428,7 +440,7 @@ def generate_move_robber_actions(state: GameState) -> List[Action]:
             # Check if any low VP opponent has buildings on this hex
             blocked = False
             for victim_id in victims:
-                if state.players[victim_id].actual_vps() <= 2:
+                if state.players[victim_id].public_vps <= 2:
                     blocked = True
                     break
             if blocked:

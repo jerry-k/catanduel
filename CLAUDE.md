@@ -3,8 +3,8 @@
 ## Project Overview
 This is CatanDuel - a 2-player version of Catan with a Python game engine and web UI. The web UI was salvaged from rlcatan (a reinforcement learning Catan project) and adapted to work with our custom engine.
 
-## Current State (July 20, 2025)
-The project is **fully functional** and ready for playtesting. All major UI bugs have been fixed, and the game should be playable from start to finish.
+## Current State (July 25, 2025)
+The project is **fully functional** with a polished UI and comprehensive game log. All known bugs have been fixed, including proper board generation with balance rules, correct game logging, and various UI improvements.
 
 ## Architecture (CRITICAL - DO NOT VIOLATE)
 
@@ -36,24 +36,27 @@ The UI and engine use different resource orderings:
 
 This mapping is critical for maritime trade and discard actions.
 
-## Recent Fixes (All Completed)
+## Recent Improvements (July 25, 2025)
 
-### UI Display Issues
-- Settlement/city asset mix-up (was showing wrong images)
-- Dice not showing after first roll
-- Roll dice button missing text
-- Buy dev card button not clickable
-- Dev cards not showing when bought same turn
-- Dice not updating for opponent rolls
+### Core Fixes
+- **Board Generation**: Fixed hex adjacency detection for proper balance rules (no adjacent 6/8s)
+- **Game Log**: Comprehensive event logging with resource/building icons following colonist.io style
+- **Road Building**: Proper state tracking and UI feedback
+- **Friendly Robber**: Correctly uses public VPs instead of actual VPs
+- **Stolen Resources**: Game log now shows which resource was stolen
 
-### Action Communication Issues
-- Maritime trade was sending wrong format (fixed with tuple handling)
-- Discard was trying to be random (fixed with proper selection UI)
-- Action type mismatches (BUY_DEVELOPMENT_CARD vs BUY_DEV_CARD)
+### UI Enhancements
+- Resource names standardized (wood, brick, sheep, wheat, ore)
+- 6s and 8s displayed in dark red on the board
+- Building icons in game log match player colors
+- Dev card button maintains proper aspect ratio
+- Resource and building SVGs used throughout instead of text/emojis
 
-### Game Flow Issues
-- AI freezing when rolling 7 (fixed state management)
-- Friendly robber preventing all movement (fixed to only restrict placement)
+### Technical Improvements
+- Proper event generation for all game actions
+- Consistent state serialization between engine and UI
+- Clean separation of concerns maintained throughout
+- Smart AI players with improved initial settlement placement (July 25, 2025)
 
 ## Common Pitfalls to Avoid
 
@@ -127,16 +130,33 @@ This mapping is critical for maritime trade and discard actions.
 - ✅ Full game flow from setup to victory
 - ✅ All building types (settlements, cities, roads)
 - ✅ Resource collection and management  
-- ✅ Development cards (all types)
+- ✅ Development cards (all types working correctly)
 - ✅ Trading (maritime only, no player trading yet)
-- ✅ Robber movement and stealing
-- ✅ Friendly robber rule
+- ✅ Robber movement and stealing (with resource shown)
+- ✅ Friendly robber rule (based on public VPs)
 - ✅ Longest road and largest army
-- ✅ AI opponent (simple random AI)
-- ✅ Discard on 7 with selection UI
-- ✅ Victory point tracking
+- ✅ AI opponents with multiple difficulty levels:
+  - Random (Easy) - Makes random moves
+  - Smart Greedy (Medium) - Prioritizes certain actions with smart initial placement
+  - Smart Simple Minimax (Hard) - Uses limited search with smart initial placement
+  - Smart Full Minimax (Expert) - Deep search with smart initial placement
+- ✅ Discard on 7 with modal selection UI
+- ✅ Victory point tracking (public vs hidden)
+- ✅ Comprehensive game log with icons
+- ✅ Board balance rules (no adjacent 6/8s)
+
+## Known Limitations
+- No player-to-player trading (only maritime)
+- No online multiplayer (local only)
+
+## Future Possibilities
+- Smarter AI opponents
+- Player-to-player trading
+- Online multiplayer support
+- Additional map layouts
+- Statistics tracking
 
 ## Remember
-This project is in a good, working state. Most "bugs" are just UI display issues. The engine is solid. Keep the architecture clean and resist the urge to add complexity where it's not needed.
+The project is stable and feature-complete for 1v1 play. The architecture is clean with proper separation of concerns. Any new features should maintain this architecture.
 
 Good luck! 🎲

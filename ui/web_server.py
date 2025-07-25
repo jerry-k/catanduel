@@ -12,7 +12,12 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from engine.game import Game
 from engine.state import GameState, PlayerState
-from engine.models.player import Player, RandomPlayer
+from engine.models.player import Player, RandomPlayer, GreedyPlayer
+from engine.models.minimax_player import MinimaxPlayer, SimpleMinimaxPlayer
+from engine.models.smart_greedy_player import SmartGreedyPlayer
+from engine.models.smart_minimax_player import SmartMinimaxPlayer, SmartSimpleMinimaxPlayer
+from engine.models.catanatron_minimax_player import CatanatronMinimaxPlayer
+from engine.models.enums import ActionType, WOOD, BRICK, SHEEP, WHEAT, ORE, SETTLEMENT, CITY, ROAD
 
 app = Flask(__name__)
 app.secret_key = 'catanduel-secret-key'
@@ -24,6 +29,190 @@ logger = logging.getLogger(__name__)
 
 # Store game instances
 games = {}
+
+def generate_event_from_action(action, game_state_before, game_state_after, player):
+    """Generate UI events based on action type and state changes."""
+    events = []
+    resource_names = ['lumber', 'brick', 'wool', 'grain', 'ore']
+    
+    if action.action_type == ActionType.ROLL:
+        if game_state_after.last_dice_roll:
+            die1, die2 = game_state_after.last_dice_roll
+            total = die1 + die2
+            events.append({
+                'type': 'DICE_ROLLED',
+                'player': player,
+                'dice': [die1, die2],
+                'total': total
+            })
+            
+            # Check if 7 was rolled
+            if total == 7:
+                events.append({
+                    'type': 'SEVEN_ROLLED',
+                    'player': player
+                })
+            else:
+                # Check if any hex with this number is blocked by robber
+                robber_blocked = False
+                for hex_id in range(19):
+                    if game_state_after.hex_numbers[hex_id] == total and game_state_after.board.robber_hex == hex_id:
+                        robber_blocked = True
+                        break
+                
+                # Check for resource production
+                any_resources_produced = False
+                for i in range(2):  # Check both players
+                    before = game_state_before.players[i].resources
+                    after = game_state_after.players[i].resources
+                    gained = [after[j] - before[j] for j in range(5)]
+                    
+                    resources_gained = {}
+                    for res_idx, amount in enumerate(gained):
+                        if amount > 0:
+                            resources_gained[resource_names[res_idx]] = amount
+                            any_resources_produced = True
+                    
+                    if resources_gained:
+                        events.append({
+                            'type': 'RESOURCES_GAINED',
+                            'player': i,
+                            'resources': resources_gained
+                        })
+                
+                # If robber blocked and no resources produced, log that
+                if robber_blocked and not any_resources_produced:
+                    events.append({
+                        'type': 'ROBBER_BLOCKED',
+                        'player': player,
+                        'number': total
+                    })
+    
+    elif action.action_type == ActionType.BUILD_SETTLEMENT:
+        events.append({
+            'type': 'SETTLEMENT_BUILT',
+            'player': player,
+            'location': action.value
+        })
+        
+    elif action.action_type == ActionType.BUILD_INITIAL_SETTLEMENT:
+        events.append({
+            'type': 'SETTLEMENT_BUILT',
+            'player': player,
+            'location': action.value
+        })
+        
+        # Check for starting resources (second settlement in setup)
+        settlements_after = len([c for c, (p, t) in game_state_after.board.buildings.items() 
+                                if p == player and t == SETTLEMENT])
+        if settlements_after == 2:
+            # Get resources gained
+            before = game_state_before.players[player].resources
+            after = game_state_after.players[player].resources
+            gained = [after[j] - before[j] for j in range(5)]
+            
+            resources_gained = {}
+            for res_idx, amount in enumerate(gained):
+                if amount > 0:
+                    resources_gained[resource_names[res_idx]] = amount
+            
+            if resources_gained:
+                events.append({
+                    'type': 'STARTING_RESOURCES',
+                    'player': player,
+                    'resources': resources_gained
+                })
+    
+    elif action.action_type == ActionType.BUILD_CITY:
+        events.append({
+            'type': 'CITY_BUILT',
+            'player': player,
+            'location': action.value
+        })
+        
+    elif action.action_type in [ActionType.BUILD_ROAD, ActionType.BUILD_INITIAL_ROAD]:
+        events.append({
+            'type': 'ROAD_BUILT',
+            'player': player,
+            'location': action.value
+        })
+    
+    elif action.action_type == ActionType.MOVE_ROBBER:
+        hex_id, victim = action.value
+        
+        # Check if friendly robber is active before move
+        opponent_id = 1 - player
+        if game_state_before.players[opponent_id].public_vps <= 2:
+            events.append({
+                'type': 'FRIENDLY_ROBBER',
+                'player': player
+            })
+        
+        events.append({
+            'type': 'ROBBER_MOVED',
+            'player': player,
+            'hex_id': hex_id
+        })
+        
+        if victim is not None:
+            # Check if a resource was stolen
+            before_victim = game_state_before.players[victim].resources
+            after_victim = game_state_after.players[victim].resources
+            before_thief = game_state_before.players[player].resources
+            after_thief = game_state_after.players[player].resources
+            
+            # Find which resource was stolen
+            stolen_resource = None
+            for i in range(5):
+                if before_victim[i] > after_victim[i] and after_thief[i] > before_thief[i]:
+                    stolen_resource = i
+                    break
+            
+            if stolen_resource is not None:
+                events.append({
+                    'type': 'CARD_STOLEN',
+                    'player': player,
+                    'target': victim,
+                    'resource': resource_names[stolen_resource]
+                })
+            else:
+                events.append({
+                    'type': 'NO_STEAL',
+                    'player': player
+                })
+    
+    elif action.action_type == ActionType.DISCARD:
+        discarded = {}
+        for res_idx, amount in enumerate(action.value):
+            if amount > 0:
+                discarded[resource_names[res_idx]] = amount
+        
+        events.append({
+            'type': 'RESOURCES_DISCARDED',
+            'player': player,
+            'resources': discarded
+        })
+    
+    elif action.action_type == ActionType.BUY_DEVELOPMENT_CARD:
+        events.append({
+            'type': 'DEV_CARD_BOUGHT',
+            'player': player
+        })
+    
+    elif action.action_type == ActionType.MARITIME_TRADE:
+        give_res, give_amount, get_res = action.value
+        events.append({
+            'type': 'MARITIME_TRADE',
+            'player': player,
+            'gave': {resource_names[give_res]: give_amount},
+            'received': {resource_names[get_res]: 1}
+        })
+    
+    elif action.action_type == ActionType.END_TURN:
+        # Don't log turn end per the plan
+        pass
+    
+    return events
 
 @app.route('/')
 def index():
@@ -39,11 +228,23 @@ def new_game():
         data = request.json or {}
         game_id = str(uuid.uuid4())
         seed = data.get('seed')
+        ai_type = data.get('ai_type', 'simple_minimax')
+        
+        # Create AI player based on selected type
+        ai_players = {
+            'random': RandomPlayer,
+            'greedy': SmartGreedyPlayer,  # Use SmartGreedyPlayer for better placement
+            'simple_minimax': SmartSimpleMinimaxPlayer,  # Smart placement + simple search
+            'minimax': SmartMinimaxPlayer,  # Smart placement + full search
+            'catanatron': CatanatronMinimaxPlayer  # Catanatron-style probability-aware minimax
+        }
+        
+        AIClass = ai_players.get(ai_type, SimpleMinimaxPlayer)
         
         # Create new game with two players
-        # Using RandomPlayer for both for now - the UI will handle human moves
-        player1 = RandomPlayer(0, "Human")
-        player2 = RandomPlayer(1, "AI")
+        # Human player (UI will handle moves) and AI player
+        player1 = RandomPlayer(0, "Human")  # UI handles human moves
+        player2 = AIClass(1, "AI")
         game = Game([player1, player2], seed=seed)
         
         games[game_id] = game
@@ -98,22 +299,26 @@ def get_game_state(game_id):
     logger.info(f"Initial state: acting_player={acting_player}, prompt={game.state.current_prompt}, is_moving_robber={game.state.is_moving_robber}")
     
     while acting_player == 1 and not game.is_over() and ai_action_count < max_ai_actions:
-        # AI's turn
+        # AI's turn - let the AI player decide
         ai_actions = game.get_valid_actions()
         if not ai_actions:
             logger.warning(f"AI has no valid actions. Current prompt: {game.state.current_prompt}")
             break
             
-        # Simple AI: pick first valid action
-        ai_action = ai_actions[0]
+        # Let the AI player make a decision
+        ai_player = game.players[1]  # AI is always player 1
+        ai_action = ai_player.decide(game, ai_actions)
         logger.info(f"AI executing: {ai_action.action_type.name}")
+        
+        # Save state before action
+        state_before = game.state.copy()
         success = game.execute(ai_action)
         
         if success:
-            events.append({
-                'type': 'AI_ACTION',
-                'message': f'AI played {ai_action.action_type.name}'
-            })
+            # Generate events based on the action
+            action_events = generate_event_from_action(ai_action, state_before, game.state, 1)
+            events.extend(action_events)
+            
             # Always update acting player from game state
             acting_player = game.state.setup_phase_player_order() if game.state.is_setup_phase() else game.state.current_player
             
@@ -206,25 +411,32 @@ def execute_action(game_id):
             
         action = Action(action_type, value)
         
-        # Store state before monopoly action to calculate resources taken
-        opponent_resources_before = None
-        if action_type == ActionType.PLAY_MONOPOLY:
-            acting_player = game.state.current_player
-            opponent_id = 1 - acting_player
-            opponent_resources_before = game.state.players[opponent_id].resources[value]
+        # Log the action for debugging
+        logger.info(f"Executing action: {action_type.name} with value: {value}")
+        logger.info(f"Current state - is_setup: {game.state.is_setup_phase()}, current_player: {game.state.current_player}")
+        
+        # Save state before action
+        state_before = game.state.copy()
         
         # Execute the action
         success = game.execute(action)
         
         if not success:
+            logger.error(f"Action failed: {action_type.name} with value: {value}")
+            logger.error(f"Valid actions: {[a.action_type.name for a in game.get_valid_actions()]}")
             return jsonify({'error': 'Invalid action'}), 400
             
         # Generate events based on action type
-        events = []
         player = action_data.get('player', 0)
+        events = generate_event_from_action(action, state_before, game.state, player)
         
+        # Handle development card actions
         if action_type == ActionType.PLAY_YEAR_OF_PLENTY:
-            # Count resources taken
+            # Generate the play event from generate_event_from_action
+            play_events = generate_event_from_action(action, state_before, game.state, player)
+            events.extend(play_events)
+            
+            # Also add the specific Year of Plenty event with resources taken
             resources_taken = {}
             resource_names = ['lumber', 'brick', 'wool', 'grain', 'ore']
             for res_idx in value:
@@ -236,26 +448,43 @@ def execute_action(game_id):
                 'player': player,
                 'resources': resources_taken
             })
+            
         elif action_type == ActionType.PLAY_MONOPOLY:
+            # Generate the play event
+            play_events = generate_event_from_action(action, state_before, game.state, player)
+            events.extend(play_events)
+            
             # Calculate total taken from other players
             resource_names = ['lumber', 'brick', 'wool', 'grain', 'ore']
-            total_taken = opponent_resources_before if opponent_resources_before is not None else 0
+            opponent_id = 1 - player
+            before_resources = state_before.players[opponent_id].resources[value]
+            after_resources = game.state.players[opponent_id].resources[value]
+            total_taken = before_resources - after_resources
+            
             events.append({
                 'type': 'MONOPOLY_PLAYED',
                 'player': player,
                 'resource': resource_names[value],
                 'total_taken': total_taken
             })
+            
         elif action_type == ActionType.PLAY_KNIGHT_CARD:
             events.append({
                 'type': 'KNIGHT_PLAYED',
                 'player': player
             })
+            # Knight's robber movement is handled separately by generate_event_from_action
+            
         elif action_type == ActionType.PLAY_ROAD_BUILDING:
             events.append({
                 'type': 'ROAD_BUILDING_PLAYED',
                 'player': player
             })
+            # Roads built will be tracked separately as BUILD_ROAD actions
+            
+        else:
+            # For all other actions, use generate_event_from_action
+            events = generate_event_from_action(action, state_before, game.state, player)
             
         # Get updated state
         legal_actions = []
@@ -416,6 +645,8 @@ def serialize_state(game):
         'corners': corners,
         'dev_cards': dev_cards,
         'dev_cards_detail': dev_cards_detail,
+        'is_road_building': state.is_road_building,
+        '_free_roads': getattr(state, '_free_roads', 0),
         'longest_road_player': 0 if state.players[0].has_longest_road else (1 if state.players[1].has_longest_road else None),
         'largest_army_player': 0 if state.players[0].has_largest_army else (1 if state.players[1].has_largest_army else None),
         'knights_played': {

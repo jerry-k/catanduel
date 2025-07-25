@@ -136,6 +136,7 @@ class GameState:
     # Special states
     is_discarding: bool = False
     is_moving_robber: bool = False
+    is_road_building: bool = False
     
     # Initial build phase tracking
     initial_phase: bool = True
@@ -190,6 +191,7 @@ class GameState:
         # Copy special states
         new_state.is_discarding = self.is_discarding
         new_state.is_moving_robber = self.is_moving_robber
+        new_state.is_road_building = self.is_road_building
         
         # Copy phase tracking
         new_state.initial_phase = self.initial_phase

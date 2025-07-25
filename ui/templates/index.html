@@ -13,7 +13,7 @@
             <!-- Left side: Board -->
             <div id="board-area">
                 <div id="board-container">
-                    <svg id="game-board" width="900" height="650" viewBox="0 0 900 650">
+                    <svg id="game-board" width="900" height="650" viewBox="50 50 800 550">
                         <!-- Board will be drawn here by JavaScript -->
                     </svg>
                     
@@ -69,51 +69,55 @@
             <div id="side-panel">
                 <!-- Player Stats -->
                 <div id="player-stats">
-                    <div class="player-stat" id="player-0-stats">
+                    <div class="player-stat-container" id="player-0-stats">
                         <div class="player-name player-red">Red Player</div>
-                        <div class="stat-row">
-                            <span class="stat-icon">🏆</span>
-                            <span class="stat-value" data-stat="vp">0</span>
-                        </div>
-                        <div class="stat-row">
-                            <span class="stat-icon">📦</span>
-                            <span class="stat-value" data-stat="resources">0</span>
-                        </div>
-                        <div class="stat-row">
-                            <span class="stat-icon">🃏</span>
-                            <span class="stat-value" data-stat="dev-cards">0</span>
-                        </div>
-                        <div class="stat-row">
-                            <span class="stat-icon">⚔️</span>
-                            <span class="stat-value" data-stat="knights">0</span>
-                        </div>
-                        <div class="stat-row">
-                            <span class="stat-icon">🛤️</span>
-                            <span class="stat-value" data-stat="road-length">0</span>
+                        <div class="player-stat compact">
+                            <div class="stat-item">
+                                <div class="stat-label">pts</div>
+                                <div class="stat-value" data-stat="vp">0</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">res</div>
+                                <div class="stat-value" data-stat="resources">0</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">dev</div>
+                                <div class="stat-value" data-stat="dev-cards">0</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">knights</div>
+                                <div class="stat-value" data-stat="knights">0</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">road</div>
+                                <div class="stat-value" data-stat="road-length">0</div>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="player-stat" id="player-1-stats">
+                    <div class="player-stat-container" id="player-1-stats">
                         <div class="player-name player-blue">Blue Player</div>
-                        <div class="stat-row">
-                            <span class="stat-icon">🏆</span>
-                            <span class="stat-value" data-stat="vp">0</span>
-                        </div>
-                        <div class="stat-row">
-                            <span class="stat-icon">📦</span>
-                            <span class="stat-value" data-stat="resources">0</span>
-                        </div>
-                        <div class="stat-row">
-                            <span class="stat-icon">🃏</span>
-                            <span class="stat-value" data-stat="dev-cards">0</span>
-                        </div>
-                        <div class="stat-row">
-                            <span class="stat-icon">⚔️</span>
-                            <span class="stat-value" data-stat="knights">0</span>
-                        </div>
-                        <div class="stat-row">
-                            <span class="stat-icon">🛤️</span>
-                            <span class="stat-value" data-stat="road-length">0</span>
+                        <div class="player-stat compact">
+                            <div class="stat-item">
+                                <div class="stat-label">pts</div>
+                                <div class="stat-value" data-stat="vp">0</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">res</div>
+                                <div class="stat-value" data-stat="resources">0</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">dev</div>
+                                <div class="stat-value" data-stat="dev-cards">0</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">knights</div>
+                                <div class="stat-value" data-stat="knights">0</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">road</div>
+                                <div class="stat-value" data-stat="road-length">0</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -138,6 +142,16 @@
                 <select id="game-mode">
                     <option value="pve">Human vs AI</option>
                     <option value="eve">AI vs AI</option>
+                </select>
+            </div>
+            <div class="form-group" id="ai-type-group">
+                <label for="ai-type">AI Difficulty:</label>
+                <select id="ai-type">
+                    <option value="random">Random (Easy)</option>
+                    <option value="greedy">Greedy (Medium)</option>
+                    <option value="simple_minimax" selected>Simple Minimax (Hard)</option>
+                    <option value="minimax">Full Minimax (Expert)</option>
+                    <option value="catanatron">Catanatron Minimax (Master)</option>
                 </select>
             </div>
             <div class="form-group">
@@ -182,10 +196,10 @@
             <div id="trade-get-section">
                 <h4>You Get:</h4>
                 <div id="trade-options">
-                    <button class="trade-option" data-resource="0">🌲 Lumber</button>
+                    <button class="trade-option" data-resource="0">🌲 Wood</button>
                     <button class="trade-option" data-resource="1">🧱 Brick</button>
-                    <button class="trade-option" data-resource="2">🐑 Wool</button>
-                    <button class="trade-option" data-resource="3">🌾 Grain</button>
+                    <button class="trade-option" data-resource="2">🐑 Sheep</button>
+                    <button class="trade-option" data-resource="3">🌾 Wheat</button>
                     <button class="trade-option" data-resource="4">🪨 Ore</button>
                 </div>
             </div>
@@ -202,10 +216,10 @@
             <h3>Year of Plenty</h3>
             <p>Select 2 resources to take from the bank:</p>
             <div id="year-of-plenty-options">
-                <button class="resource-option" data-resource="0">🌲 Lumber</button>
+                <button class="resource-option" data-resource="0">🌲 Wood</button>
                 <button class="resource-option" data-resource="1">🧱 Brick</button>
-                <button class="resource-option" data-resource="2">🐑 Wool</button>
-                <button class="resource-option" data-resource="3">🌾 Grain</button>
+                <button class="resource-option" data-resource="2">🐑 Sheep</button>
+                <button class="resource-option" data-resource="3">🌾 Wheat</button>
                 <button class="resource-option" data-resource="4">🪨 Ore</button>
             </div>
             <div id="year-of-plenty-selected">
@@ -225,15 +239,27 @@
             <h3>Monopoly</h3>
             <p>Select a resource type to take from all other players:</p>
             <div id="monopoly-options">
-                <button class="monopoly-option" data-resource="0">🌲 Lumber</button>
+                <button class="monopoly-option" data-resource="0">🌲 Wood</button>
                 <button class="monopoly-option" data-resource="1">🧱 Brick</button>
-                <button class="monopoly-option" data-resource="2">🐑 Wool</button>
-                <button class="monopoly-option" data-resource="3">🌾 Grain</button>
+                <button class="monopoly-option" data-resource="2">🐑 Sheep</button>
+                <button class="monopoly-option" data-resource="3">🌾 Wheat</button>
                 <button class="monopoly-option" data-resource="4">🪨 Ore</button>
             </div>
             <div class="modal-actions">
                 <button id="confirm-monopoly" class="btn-confirm" disabled>✓ Play Monopoly</button>
                 <button id="cancel-monopoly" class="btn-cancel">✗ Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Game Over Modal -->
+    <div id="game-over-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="game-over-title">Game Over!</h2>
+            <p id="game-over-message">Player wins!</p>
+            <div class="modal-actions">
+                <button id="play-again-btn" class="btn-confirm">Play Again</button>
+                <button id="main-menu-btn" class="btn-cancel">Main Menu</button>
             </div>
         </div>
     </div>

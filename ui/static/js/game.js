@@ -12,7 +12,7 @@ const GAME_CONSTANTS = {
     BUILDING_ASSETS: {
         settlement: {
             '0': '/assets/settlement_red.22949197b57f9cfd968b.svg',
-            '1': '/assets/settlement_blue.bad4cdb43d65c329deda.svg'
+            '1': '/assets/settlement_black.c687de87c2493d1624ea.svg'
         },
         city: {
             '0': '/assets/city_red.991ae0c7a0b95da9811d.svg',
@@ -20,7 +20,7 @@ const GAME_CONSTANTS = {
         },
         road: {
             '0': '/assets/road_red.41c6cbd9278108542715.svg',
-            '1': '/assets/road_blue.3301e2eed15cae5a6a05.svg'
+            '1': '/assets/road_black.6f85c9480c8f0d89d58a.svg'
         }
     }
 };
@@ -198,6 +198,7 @@ async function initGame() {
 // Start a new game
 async function startNewGame() {
     const gameMode = document.getElementById('game-mode').value;
+    const aiType = document.getElementById('ai-type').value;
     const seed = document.getElementById('game-seed').value || null;
     
     try {
@@ -206,7 +207,8 @@ async function startNewGame() {
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
                 seed: seed,
-                game_mode: gameMode
+                game_mode: gameMode,
+                ai_type: aiType
             })
         });
         
@@ -218,12 +220,20 @@ async function startNewGame() {
         document.getElementById('game-modal').style.display = 'none';
         
         // Update player names based on game mode
+        const aiNames = {
+            'random': 'Random AI',
+            'greedy': 'Greedy AI', 
+            'simple_minimax': 'Simple MM',
+            'minimax': 'Minimax'
+        };
+        const aiName = aiNames[aiType] || 'AI';
+        
         if (gameMode === 'pve') {
             document.querySelector('#player-0-stats .player-name').textContent = 'You';
-            document.querySelector('#player-1-stats .player-name').textContent = 'AI (Minimax)';
+            document.querySelector('#player-1-stats .player-name').textContent = `AI (${aiName})`;
         } else if (gameMode === 'eve') {
-            document.querySelector('#player-0-stats .player-name').textContent = 'AI 1 (Minimax)';
-            document.querySelector('#player-1-stats .player-name').textContent = 'AI 2 (Minimax)';
+            document.querySelector('#player-0-stats .player-name').textContent = `AI 1 (${aiName})`;
+            document.querySelector('#player-1-stats .player-name').textContent = `AI 2 (${aiName})`;
         }
         
         // Initial game update
@@ -268,8 +278,7 @@ async function fetchLegalActions() {
         // Check for game over
         if (data.game_over) {
             const winner = data.winner;
-            const winnerName = winner === 0 ? 'You' : 'AI';
-            alert(`Game Over! ${winnerName} won!`);
+            showGameOverModal(winner);
             return;
         }
         
@@ -321,8 +330,7 @@ async function executeAction(actionData) {
             
             // Check for game over
             if (data.game_over) {
-                const winner = data.winner === 0 ? 'Red' : 'Blue';
-                alert(`Game Over! ${winner} wins!`);
+                showGameOverModal(data.winner);
             }
             
             // Check if we should auto-enter road placement mode (after Road Building)
@@ -644,9 +652,9 @@ function updateBuildingCounters() {
     let settlementsUsed = 0;
     let citiesUsed = 0;
     
-    // Count roads
-    if (gameState.roads) {
-        for (const [edgeId, playerId] of Object.entries(gameState.roads)) {
+    // Count roads from edges
+    if (gameState.edges) {
+        for (const [edgeId, playerId] of Object.entries(gameState.edges)) {
             // Handle both string and number player IDs
             if (playerId === 0 || playerId === '0') {
                 roadsUsed++;
@@ -654,30 +662,14 @@ function updateBuildingCounters() {
         }
     }
     
-    // Count settlements and cities
-    if (gameState.buildings) {
-        if (Array.isArray(gameState.buildings)) {
-            // New format: buildings is an array
-            for (const building of gameState.buildings) {
-                // Check both number and string for compatibility
-                if (building.player === 0 || building.player === '0') {
-                    if (building.type === 'settlement') {
-                        settlementsUsed++;
-                    } else if (building.type === 'city') {
-                        citiesUsed++;
-                    }
-                    // Note: roads are also in the buildings array but we count them separately
-                }
-            }
-        } else {
-            // Old format: buildings is an object (for backwards compatibility)
-            for (const [cornerId, building] of Object.entries(gameState.buildings)) {
-                if (building.player === 0 || building.player === '0') {
-                    if (building.type === 'settlement') {
-                        settlementsUsed++;
-                    } else if (building.type === 'city') {
-                        citiesUsed++;
-                    }
+    // Count settlements and cities from corners
+    if (gameState.corners) {
+        for (const [cornerId, building] of Object.entries(gameState.corners)) {
+            if (building && (building.player === 0 || building.player === '0')) {
+                if (building.type === 'SETTLEMENT') {
+                    settlementsUsed++;
+                } else if (building.type === 'CITY') {
+                    citiesUsed++;
                 }
             }
         }
@@ -847,17 +839,19 @@ function drawHex(svg, hexId) {
         bgRect.setAttribute('stroke-width', '1');
         g.appendChild(bgRect);
         
-        // Number text in black
+        // Number text
         const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         text.setAttribute('x', pixel.x);
         text.setAttribute('y', numberY + 5);
         text.classList.add('hex-number');
-        text.style.fill = 'black';
         text.textContent = hexData.number;
         
-        // Make 6 and 8 bold instead of red
+        // Make 6 and 8 dark red and bold
         if (hexData.number === 6 || hexData.number === 8) {
+            text.style.fill = '#c0392b';  // Darker red color
             text.style.fontWeight = '900';
+        } else {
+            text.style.fill = 'black';
         }
         
         g.appendChild(text);
@@ -1243,9 +1237,7 @@ function updateActionButtons() {
     
     // Check for Road Building state
     if (gameState.action_state === 30 || gameState.action_state === 31) { // ROAD_BUILDING_1 or ROAD_BUILDING_2
-        const roadsPlaced = gameState.action_state === 30 ? 0 : 1;
-        const roadsRemaining = 2 - roadsPlaced;
-        addLogEntry(`Road Building: Place ${roadsRemaining} more road${roadsRemaining > 1 ? 's' : ''} for free`, 'system');
+        // No log entry needed - the action area shows the Road Building status
     }
     
     // Filter out building actions - these will be interactive
@@ -1316,10 +1308,20 @@ function updateActionButtons() {
     // Only show robber placement info if needed
     const canMoveRobber = legalActions.some(a => a.type === 'MOVE_ROBBER');
     if (canMoveRobber) {
-        const info = document.createElement('div');
-        info.innerHTML = '<strong>Click a hex to move the robber</strong>';
-        actionsList.appendChild(info);
+        actionsList.innerHTML = '<div class="setup-info"><strong>Robber:</strong> Click a hex to move the robber</div>';
         enablePlacementMode('robber');
+    }
+    
+    // Show road building placement info if needed
+    const isRoadBuilding = gameState.is_road_building && legalActions.length > 0 && 
+                          legalActions.every(a => a.type === 'BUILD_ROAD');
+    if (isRoadBuilding) {
+        const freeRoads = gameState._free_roads || 0;
+        const roadText = freeRoads > 1 
+            ? `Click on the map to place ${freeRoads} free roads`
+            : `Click on the map to place your free road`;
+        actionsList.innerHTML = `<div class="setup-info"><strong>Road Building:</strong> ${roadText}</div>`;
+        enablePlacementMode('road');
     }
 }
 
@@ -1497,110 +1499,171 @@ function logEvent(event) {
     let message = '';
     let playerClass = '';
     
-    // Define resourceEmojis array once at the top
-    const resourceEmojis = ['🌲', '🧱', '🐑', '🌾', '🪨'];  // wood, brick, sheep, wheat, ore
+    // Player names  
+    const playerNames = {
+        0: 'Red',
+        1: 'Black'
+    };
+    
+    // Resource card SVGs matching the names
+    const resourceCards = {
+        lumber: GAME_CONSTANTS.RESOURCE_PATHS['0'],  // wood
+        brick: GAME_CONSTANTS.RESOURCE_PATHS['1'],   // brick
+        wool: GAME_CONSTANTS.RESOURCE_PATHS['2'],    // sheep
+        grain: GAME_CONSTANTS.RESOURCE_PATHS['3'],   // wheat
+        ore: GAME_CONSTANTS.RESOURCE_PATHS['4']      // ore
+    };
+    
+    // Helper function to create resource icon HTML
+    function createResourceIcon(resourceName) {
+        const src = resourceCards[resourceName];
+        if (!src) return '?';
+        return `<img src="${src}" class="log-resource-icon" alt="${resourceName}" />`;
+    }
+    
+    // Helper function to create building icon HTML
+    function createBuildingIcon(buildingType, playerId) {
+        const buildingAssets = GAME_CONSTANTS.BUILDING_ASSETS[buildingType];
+        if (!buildingAssets) return buildingType;
+        const src = buildingAssets[playerId];
+        if (!src) return buildingType;
+        return `<img src="${src}" class="log-building-icon" alt="${buildingType}" />`;
+    }
     
     switch (event.type) {
         case 'DICE_ROLLED':
-            message = `Rolled ${event.dice[0]} + ${event.dice[1]} = ${event.total}`;
-            playerClass = event.player === 0 ? 'red' : 'blue';
+            message = `${playerNames[event.player]} rolled ${event.total}`;
+            playerClass = event.player === 0 ? 'red' : 'black';
+            break;
+        
+        case 'SEVEN_ROLLED':
+            message = `${playerNames[event.player]} rolled 7`;
+            playerClass = event.player === 0 ? 'red' : 'black';
             break;
         case 'RESOURCES_PRODUCED':
         case 'RESOURCES_GAINED':
-            // Create custom HTML for resources with icons
-            const resourceNames = ['lumber', 'brick', 'wool', 'grain', 'ore'];  // matches engine order
-            const resourceEmojis = {
-                brick: '🧱',
-                grain: '🌾', 
-                lumber: '🌲',
-                ore: '🪨',
-                wool: '🐑'
-            };
-            
-            const resourceEmojisOnly = [];
-            for (const [resId, count] of Object.entries(event.resources)) {
-                const resName = resourceNames[parseInt(resId)] || resId;
-                const emoji = resourceEmojis[resName] || '?';
-                // Repeat emoji for the count
+            const gainedIcons = [];
+            for (const [resName, count] of Object.entries(event.resources)) {
+                // Repeat icon for the count
                 for (let i = 0; i < count; i++) {
-                    resourceEmojisOnly.push(emoji);
+                    gainedIcons.push(createResourceIcon(resName));
                 }
             }
+            message = `${playerNames[event.player]} got ${gainedIcons.join(' ')}`;
+            playerClass = event.player === 0 ? 'red' : 'black';
+            break;
             
-            message = `Gained ${resourceEmojisOnly.join('')}`;
-            playerClass = event.player === 0 ? 'red' : 'blue';
+        case 'STARTING_RESOURCES':
+            const startingIcons = [];
+            for (const [resName, count] of Object.entries(event.resources)) {
+                for (let i = 0; i < count; i++) {
+                    startingIcons.push(createResourceIcon(resName));
+                }
+            }
+            message = `${playerNames[event.player]} received starting resources ${startingIcons.join(' ')}`;
+            playerClass = event.player === 0 ? 'red' : 'black';
             break;
         case 'ROAD_BUILT':
-            message = `Built road`;
-            playerClass = event.player === 0 ? 'red' : 'blue';
+            const roadIcon = createBuildingIcon('road', event.player);
+            message = `${playerNames[event.player]} placed a ${roadIcon}`;
+            playerClass = event.player === 0 ? 'red' : 'black';
             break;
         case 'SETTLEMENT_BUILT':
-            message = `Built settlement`;
-            playerClass = event.player === 0 ? 'red' : 'blue';
+            const settlementIcon = createBuildingIcon('settlement', event.player);
+            message = `${playerNames[event.player]} placed a ${settlementIcon}`;
+            playerClass = event.player === 0 ? 'red' : 'black';
             break;
         case 'CITY_BUILT':
-            message = `Built city`;
-            playerClass = event.player === 0 ? 'red' : 'blue';
+            const cityIcon = createBuildingIcon('city', event.player);
+            message = `${playerNames[event.player]} built a ${cityIcon}`;
+            playerClass = event.player === 0 ? 'red' : 'black';
             break;
         case 'ROBBER_MOVED':
-            message = `Moved robber to hex ${event.hex_id}`;
-            playerClass = event.player === 0 ? 'red' : 'blue';
+            message = `${playerNames[event.player]} moved robber`;
+            playerClass = event.player === 0 ? 'red' : 'black';
             break;
         case 'CARD_STOLEN':
-            const targetName = event.target === 0 ? 'Red' : 'Blue';
-            const stolenEmoji = resourceEmojis[event.resource] || '?';
-            message = `Stole ${stolenEmoji} from ${targetName}`;
-            playerClass = event.player === 0 ? 'red' : 'blue';
+            const targetName = playerNames[event.target];
+            const stolenResourceIcon = createResourceIcon(event.resource);
+            message = `${playerNames[event.player]} stole ${stolenResourceIcon} from ${targetName}`;
+            playerClass = event.player === 0 ? 'red' : 'black';
+            break;
+        case 'NO_STEAL':
+            message = `No player to steal from`;
+            playerClass = 'system';
             break;
         case 'TURN_ENDED':
-            message = `Turn ended`;
-            playerClass = event.player === 0 ? 'red' : 'blue';
-            break;
+            // Don't log turn ended per the plan
+            return;
         case 'GAME_OVER':
-            message = `Game Over! Player ${event.winner + 1} wins!`;
+            message = `${playerNames[event.winner]} has won!`;
             playerClass = 'system';
             break;
         case 'DEV_CARD_BOUGHT':
-            message = `Bought development card`;
-            playerClass = event.player === 0 ? 'red' : 'blue';
+            message = `${playerNames[event.player]} bought development card`;
+            playerClass = event.player === 0 ? 'red' : 'black';
             break;
         case 'KNIGHT_PLAYED':
-            message = `Played Knight card`;
-            playerClass = event.player === 0 ? 'red' : 'blue';
+            message = `${playerNames[event.player]} played Knight`;
+            playerClass = event.player === 0 ? 'red' : 'black';
             break;
         case 'ROAD_BUILDING_PLAYED':
-            message = `Played Road Building card`;
-            playerClass = event.player === 0 ? 'red' : 'blue';
+            message = `${playerNames[event.player]} played Road Building`;
+            playerClass = event.player === 0 ? 'red' : 'black';
             break;
         case 'YEAR_OF_PLENTY_PLAYED':
             const yopResources = [];
-            const resourceEmojiMap = {
-                lumber: '🌲',
-                brick: '🧱',
-                wool: '🐑',
-                grain: '🌾',
-                ore: '🪨'
-            };
             for (const [res, count] of Object.entries(event.resources || {})) {
-                const emoji = resourceEmojiMap[res] || '?';
                 for (let i = 0; i < count; i++) {
-                    yopResources.push(emoji);
+                    yopResources.push(createResourceIcon(res));
                 }
             }
-            message = `Played Year of Plenty: took ${yopResources.join('')}`;
-            playerClass = event.player === 0 ? 'red' : 'blue';
+            message = `${playerNames[event.player]} played Year of Plenty and took ${yopResources.join(' ')}`;
+            playerClass = event.player === 0 ? 'red' : 'black';
             break;
+            
         case 'MONOPOLY_PLAYED':
-            const monopolyEmojiMap = {
-                lumber: '🌲',
-                brick: '🧱',
-                wool: '🐑',
-                grain: '🌾',
-                ore: '🪨'
-            };
-            const monopolyEmoji = monopolyEmojiMap[event.resource] || resourceEmojis[event.resource] || '?';
-            message = `Played Monopoly on ${monopolyEmoji}, took ${event.total_taken || 0} cards`;
-            playerClass = event.player === 0 ? 'red' : 'blue';
+            const monopolyIcon = createResourceIcon(event.resource);
+            message = `${playerNames[event.player]} played Monopoly and took ${event.total_taken} ${monopolyIcon}`;
+            playerClass = event.player === 0 ? 'red' : 'black';
+            break;
+            
+        case 'MARITIME_TRADE':
+            const gaveIcons = [];
+            const receivedIcons = [];
+            for (const [res, count] of Object.entries(event.gave || {})) {
+                for (let i = 0; i < count; i++) {
+                    gaveIcons.push(createResourceIcon(res));
+                }
+            }
+            for (const [res, count] of Object.entries(event.received || {})) {
+                for (let i = 0; i < count; i++) {
+                    receivedIcons.push(createResourceIcon(res));
+                }
+            }
+            message = `${playerNames[event.player]} gave bank ${gaveIcons.join(' ')} and took ${receivedIcons.join(' ')}`;
+            playerClass = event.player === 0 ? 'red' : 'black';
+            break;
+            
+        case 'RESOURCES_DISCARDED':
+            const discardIcons = [];
+            for (const [res, count] of Object.entries(event.resources || {})) {
+                for (let i = 0; i < count; i++) {
+                    discardIcons.push(createResourceIcon(res));
+                }
+            }
+            message = `${playerNames[event.player]} discarded ${discardIcons.join(' ')}`;
+            playerClass = event.player === 0 ? 'red' : 'black';
+            break;
+            
+        case 'ROBBER_BLOCKED':
+            message = `${playerNames[event.player]} rolled ${event.number}. ${event.number} is blocked by robber. No resources produced`;
+            playerClass = event.player === 0 ? 'red' : 'black';
+            break;
+            
+        case 'FRIENDLY_ROBBER':
+            message = 'Friendly robber is active. Tiles available to block are limited';
+            playerClass = 'system';
             break;
         default:
             message = `${event.type}`;
@@ -1608,7 +1671,7 @@ function logEvent(event) {
     }
     
     entry.classList.add(playerClass);
-    entry.textContent = message;
+    entry.innerHTML = message;  // Use innerHTML to render the images
     logMessages.appendChild(entry);
     
     // Auto-scroll to bottom
@@ -1632,8 +1695,7 @@ async function triggerAIMove() {
         updateActionButtons();
         
         if (data.game_over) {
-            const winner = data.winner === 0 ? 'Red' : 'Blue';
-            alert(`Game Over! ${winner} wins!`);
+            showGameOverModal(data.winner);
         } else {
             // Continue AI vs AI game
             setTimeout(() => fetchLegalActions(), 1000);
@@ -2166,7 +2228,6 @@ function handleDevCardClick(cardType) {
         } else if (cardType === 'ROAD_BUILDING') {
             // Road building enables road placement mode
             executeAction(canPlayActions[0]);
-            addLogEntry('Road Building: Place 2 roads for free', 'system');
         } else if (cardType === 'YEAR_OF_PLENTY') {
             // Show year of plenty modal
             showYearOfPlentyModal();
@@ -2175,10 +2236,8 @@ function handleDevCardClick(cardType) {
             showMonopolyModal();
         }
     } else {
-        // Show message that card can't be played now
+        // Card can't be played now - no message needed
         console.log(`Cannot play ${cardType} card at this time`);
-        // Add visual feedback
-        addLogEntry(`Cannot play ${cardType} card yet. Dev cards bought this turn cannot be played until next turn.`, 'system');
     }
 }
 
@@ -2218,6 +2277,19 @@ function showMonopolyModal() {
     });
     document.getElementById('confirm-monopoly').disabled = true;
     
+    modal.style.display = 'block';
+}
+
+// Show Game Over modal
+function showGameOverModal(winner) {
+    const modal = document.getElementById('game-over-modal');
+    const message = document.getElementById('game-over-message');
+    
+    // Set the winner message
+    const winnerName = winner === 0 ? 'Red' : 'Blue';
+    message.textContent = `${winnerName} Player wins!`;
+    
+    // Show the modal
     modal.style.display = 'block';
 }
 
@@ -2301,11 +2373,29 @@ function initDevCardModals() {
     };
 }
 
+// Initialize game over modal handlers
+function initGameOverModal() {
+    const playAgainBtn = document.getElementById('play-again-btn');
+    const mainMenuBtn = document.getElementById('main-menu-btn');
+    
+    playAgainBtn.onclick = () => {
+        // Reload the page to start a new game
+        window.location.reload();
+    };
+    
+    mainMenuBtn.onclick = () => {
+        // Hide game over modal and show the game start modal
+        document.getElementById('game-over-modal').style.display = 'none';
+        document.getElementById('game-modal').style.display = 'block';
+    };
+}
+
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM Content Loaded - initializing...');
     initGame();
     initModalHandlers();
     initDevCardModals();
+    initGameOverModal();
     console.log('All initialization complete');
 });

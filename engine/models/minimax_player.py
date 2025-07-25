@@ -72,7 +72,11 @@ class MinimaxPlayer(Player):
                 
             # Make a copy and apply the action
             game_copy = game.copy()
-            game_copy.execute(action, validate=False)
+            try:
+                game_copy.execute(action, validate=False)
+            except (ValueError, Exception):
+                # Skip actions that turn out to be invalid
+                continue
             
             # Evaluate using minimax
             value = self._minimax(
@@ -139,7 +143,11 @@ class MinimaxPlayer(Player):
                     continue
                     
                 game_copy = game.copy()
-                game_copy.execute(action, validate=False)
+                try:
+                    game_copy.execute(action, validate=False)
+                except (ValueError, Exception):
+                    # Skip actions that turn out to be invalid
+                    continue
                 
                 eval_score = self._minimax(
                     game_copy, 
@@ -163,7 +171,11 @@ class MinimaxPlayer(Player):
                     continue
                     
                 game_copy = game.copy()
-                game_copy.execute(action, validate=False)
+                try:
+                    game_copy.execute(action, validate=False)
+                except (ValueError, Exception):
+                    # Skip actions that turn out to be invalid
+                    continue
                 
                 eval_score = self._minimax(
                     game_copy, 

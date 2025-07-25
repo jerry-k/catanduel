@@ -217,6 +217,13 @@ def build_road(state: GameState, player_id: int, edge_id: int):
         take_resources(state, player_id, ROAD_COST)
     else:
         state._free_roads -= 1
+        
+        # Check if road building is complete
+        if state._free_roads == 0 or player.roads_left == 1:  # roads_left will be decremented below
+            # No more free roads to place
+            state.is_road_building = False
+            if hasattr(state, '_free_roads'):
+                delattr(state, '_free_roads')
     
     # Update player
     player.roads_left -= 1
@@ -360,6 +367,10 @@ def play_road_building(state: GameState, player_id: int):
     
     # Set up free roads (actual building happens through normal build_road)
     state._free_roads = min(2, player.roads_left)
+    
+    # Set the road building flag to force road placement
+    state.is_road_building = True
+    state.invalidate_actions_cache()
 
 
 # ===== Dice and Robber =====
@@ -574,6 +585,7 @@ def start_turn(state: GameState):
     # Clear special states
     state.is_discarding = False
     state.is_moving_robber = False
+    state.is_road_building = False
     
     # Clear any free roads
     if hasattr(state, '_free_roads'):

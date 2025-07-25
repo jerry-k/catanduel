@@ -144,8 +144,10 @@ class GreedyPlayer(Player):
     ACTION_PRIORITIES = {
         "BUILD_CITY": 1,
         "BUILD_SETTLEMENT": 2,
+        "BUILD_INITIAL_SETTLEMENT": 2,  # Same priority as regular settlement
         "BUY_DEVELOPMENT_CARD": 3,
         "BUILD_ROAD": 4,
+        "BUILD_INITIAL_ROAD": 4,  # Same priority as regular road
         "PLAY_KNIGHT_CARD": 5,
         "PLAY_YEAR_OF_PLENTY": 5,
         "PLAY_MONOPOLY": 5,
