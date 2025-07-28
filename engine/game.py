@@ -47,6 +47,7 @@ class Game:
             players: List of 2 Player objects
             seed: Random seed for reproducibility
         """
+        self.seed = seed
         if len(players) != 2:
             raise ValueError("CatanDuel requires exactly 2 players")
         
@@ -245,6 +246,25 @@ class Game:
             else:
                 # Need to place next settlement
                 self.state.current_prompt = ActionPrompt.BUILD_INITIAL_SETTLEMENT
+    
+    def copy(self):
+        """
+        Create a deep copy of the game for AI planning.
+        
+        Returns:
+            A new Game instance with copied state
+        """
+        # Use GameState's custom copy method (much faster than deepcopy)
+        new_state = self.state.copy()
+        
+        # Create new game instance without re-initializing
+        new_game = object.__new__(Game)
+        new_game.players = self.players
+        new_game.seed = self.seed
+        new_game.state = new_state
+        new_game.action_history = []  # Don't copy history for AI planning
+        
+        return new_game
     
     def get_game_info(self) -> Dict:
         """

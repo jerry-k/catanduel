@@ -89,7 +89,14 @@ def play_game(p1_class: Type[Player], p2_class: Type[Player],
             break
             
         current = game.state.current_player
-        action = game.players[current].decide(game, actions)
+        
+        try:
+            action = game.players[current].decide(game, actions)
+        except Exception as e:
+            print(f"\nERROR: Player {current} ({game.players[current].name}) crashed: {e}")
+            # Player that crashes loses
+            winner = 1 - current
+            return winner, turn, time.time() - start_time
         
         success = game.execute(action)
         if not success:
@@ -126,6 +133,7 @@ def run_tournament(p1_class: Type[Player], p2_class: Type[Player],
     total_turns = 0
     total_duration = 0
     turn_counts = []
+    first_player_wins = 0  # Track if first player wins
     
     for i in range(num_games):
         if not quiet and not verbose:
@@ -144,16 +152,22 @@ def run_tournament(p1_class: Type[Player], p2_class: Type[Player],
         if winner == 0:
             wins[0] += 1
             result = f"P1 ({p1_name})"
+            if i % 2 == 0:  # P1 went first
+                first_player_wins += 1
         elif winner == 1:
             wins[1] += 1
             result = f"P2 ({p2_name})"
+            if i % 2 == 1:  # P2 went first
+                first_player_wins += 1
         else:
             draws += 1
             result = "Draw"
         
         if verbose:
             starting = "P1" if i % 2 == 0 else "P2"
-            print(f"Game {i+1}: {result} wins in {turns} turns ({duration:.1f}s) - {starting} started")
+            actual_starter = "P1" if i % 2 == 0 else "P2"
+            starter_won = (winner == 0 and i % 2 == 0) or (winner == 1 and i % 2 == 1)
+            print(f"Game {i+1}: {result} wins in {turns} turns ({duration:.1f}s) - {starting} started {'✓' if starter_won else '✗'}")
         elif not quiet and i % 10 == 9:
             print(f" Done! (P1: {wins[0]}, P2: {wins[1]}, Draws: {draws})")
     
@@ -179,6 +193,11 @@ def run_tournament(p1_class: Type[Player], p2_class: Type[Player],
         if turn_counts:
             print(f"Shortest game: {min(turn_counts)} turns")
             print(f"Longest game: {max(turn_counts)} turns")
+        
+        # Show first player advantage
+        games_with_winner = wins[0] + wins[1]
+        if games_with_winner > 0:
+            print(f"\nFirst player advantage: {first_player_wins}/{games_with_winner} ({first_player_wins/games_with_winner*100:.1f}%) games won by first player")
 
 def main():
     """Main function to run tournaments."""

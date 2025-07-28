@@ -55,6 +55,9 @@ class MinimaxPlayer(Player):
         
     def decide(self, game: "Game", valid_actions: List[Action]) -> Action:
         """Choose the best action using minimax search."""
+        if not valid_actions:
+            raise ValueError(f"No valid actions available for {self.name}")
+            
         if len(valid_actions) == 1:
             return valid_actions[0]
         
@@ -79,6 +82,7 @@ class MinimaxPlayer(Player):
                 continue
             
             # Evaluate using minimax
+            # Note: After executing action, it's the opponent's turn in game_copy
             value = self._minimax(
                 game_copy, 
                 self.max_depth - 1,
@@ -88,14 +92,10 @@ class MinimaxPlayer(Player):
             )
             
             # Update best action
-            if game.state.current_player == self.player_id:
-                if value > best_value:
-                    best_value = value
-                    best_action = action
-            else:
-                if value < best_value:
-                    best_value = value
-                    best_action = action
+            # We're maximizing if it's our turn in the original game
+            if value > best_value:
+                best_value = value
+                best_action = action
             
             # Check time limit
             if time.time() - self.start_time > self.time_limit:

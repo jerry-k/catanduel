@@ -17,6 +17,7 @@ from engine.models.minimax_player import MinimaxPlayer, SimpleMinimaxPlayer
 from engine.models.smart_greedy_player import SmartGreedyPlayer
 from engine.models.smart_minimax_player import SmartMinimaxPlayer, SmartSimpleMinimaxPlayer
 from engine.models.catanatron_minimax_player import CatanatronMinimaxPlayer
+from engine.models.catanatron_alphabeta_player import CatanatronAlphaBetaPlayer
 from engine.models.enums import ActionType, WOOD, BRICK, SHEEP, WHEAT, ORE, SETTLEMENT, CITY, ROAD
 
 app = Flask(__name__)
@@ -236,7 +237,8 @@ def new_game():
             'greedy': SmartGreedyPlayer,  # Use SmartGreedyPlayer for better placement
             'simple_minimax': SmartSimpleMinimaxPlayer,  # Smart placement + simple search
             'minimax': SmartMinimaxPlayer,  # Smart placement + full search
-            'catanatron': CatanatronMinimaxPlayer  # Catanatron-style probability-aware minimax
+            'catanatron': CatanatronMinimaxPlayer,  # Catanatron-style minimax (no probabilistic)
+            'catanatron_ab': CatanatronAlphaBetaPlayer  # Catanatron with expectimax + alpha-beta
         }
         
         AIClass = ai_players.get(ai_type, SimpleMinimaxPlayer)

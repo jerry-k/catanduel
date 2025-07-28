@@ -1,0 +1,519 @@
+{
+  "data": {
+    "eventHistory": {
+      "events": [
+        {
+          "deltaS": 1.5,
+          "stateChange": {
+            "mapState": {
+              "tileCornerStates": {
+                "41": {
+                  "owner": 1,
+                  "buildingType": 1
+                }
+              }
+            },
+            "gameLogState": {
+              "0": {
+                "from": 1,
+                "text": {
+                  "type": 4,
+                  "pieceEnum": 2,
+                  "playerColor": 1
+                }
+              }
+            }
+          }
+        },
+        {
+          "deltaS": 1.5,
+          "stateChange": {
+            "mapState": {
+              "tileEdgeStates": {
+                "53": {
+                  "type": 1,
+                  "owner": 1
+                }
+              }
+            },
+            "gameLogState": {
+              "1": {
+                "from": 1,
+                "text": {
+                  "type": 4,
+                  "pieceEnum": 0,
+                  "playerColor": 1
+                }
+              }
+            }
+          }
+        },
+        {
+          "deltaS": 1.5,
+          "stateChange": {
+            "mapState": {
+              "tileCornerStates": {
+                "18": {
+                  "owner": 5,
+                  "buildingType": 1
+                }
+              }
+            },
+            "gameLogState": {
+              "2": {
+                "from": 5,
+                "text": {
+                  "type": 4,
+                  "pieceEnum": 2,
+                  "playerColor": 5
+                }
+              }
+            }
+          }
+        },
+        {
+          "deltaS": 1.5,
+          "stateChange": {
+            "mapState": {
+              "tileEdgeStates": {
+                "21": {
+                  "type": 1,
+                  "owner": 5
+                }
+              }
+            },
+            "gameLogState": {
+              "3": {
+                "from": 5,
+                "text": {
+                  "type": 4,
+                  "pieceEnum": 0,
+                  "playerColor": 5
+                }
+              }
+            }
+          }
+        },
+        {
+          "deltaS": 1.5,
+          "stateChange": {
+            "mapState": {
+              "tileCornerStates": {
+                "7": {
+                  "owner": 5,
+                  "buildingType": 1
+                }
+              }
+            },
+            "gameLogState": {
+              "4": {
+                "from": 5,
+                "text": {
+                  "type": 4,
+                  "pieceEnum": 2,
+                  "playerColor": 5
+                }
+              }
+            }
+          }
+        },
+        {
+          "deltaS": 1.5,
+          "stateChange": {
+            "mapState": {
+              "tileEdgeStates": {
+                "8": {
+                  "type": 1,
+                  "owner": 5
+                }
+              }
+            },
+            "gameLogState": {
+              "5": {
+                "from": 5,
+                "text": {
+                  "type": 4,
+                  "pieceEnum": 0,
+                  "playerColor": 5
+                }
+              }
+            }
+          }
+        },
+        {
+          "deltaS": 1.5,
+          "stateChange": {
+            "mapState": {
+              "tileCornerStates": {
+                "46": {
+                  "owner": 1,
+                  "buildingType": 1
+                }
+              }
+            },
+            "gameLogState": {
+              "6": {
+                "from": 1,
+                "text": {
+                  "type": 4,
+                  "pieceEnum": 2,
+                  "playerColor": 1
+                }
+              }
+            }
+          }
+        },
+        {
+          "deltaS": 1.5,
+          "stateChange": {
+            "mapState": {
+              "tileEdgeStates": {
+                "56": {
+                  "type": 1,
+                  "owner": 1
+                }
+              }
+            },
+            "gameLogState": {
+              "7": {
+                "from": 1,
+                "text": {
+                  "type": 4,
+                  "pieceEnum": 0,
+                  "playerColor": 1
+                }
+              }
+            }
+          }
+        },
+        {
+          "deltaS": 1.0,
+          "stateChange": {
+            "diceState": {
+              "dice1": 6,
+              "dice2": 3,
+              "diceThrown": true
+            },
+            "gameLogState": {
+              "8": {
+                "from": 1,
+                "text": {
+                  "type": 10,
+                  "firstDice": 6,
+                  "secondDice": 3,
+                  "playerColor": 1
+                }
+              }
+            }
+          }
+        },
+        {
+          "deltaS": 1.0,
+          "stateChange": {
+            "currentState": {
+              "completedTurns": 1,
+              "currentTurnPlayerColor": 5
+            },
+            "gameLogState": {
+              "9": {
+                "text": {
+                  "type": 44
+                }
+              }
+            }
+          }
+        },
+        {
+          "deltaS": 1.0,
+          "stateChange": {
+            "diceState": {
+              "dice1": 4,
+              "dice2": 5,
+              "diceThrown": true
+            },
+            "gameLogState": {
+              "10": {
+                "from": 5,
+                "text": {
+                  "type": 10,
+                  "firstDice": 4,
+                  "secondDice": 5,
+                  "playerColor": 5
+                }
+              }
+            }
+          }
+        },
+        {
+          "deltaS": 1.0,
+          "stateChange": {}
+        },
+        {
+          "deltaS": 1.0,
+          "stateChange": {
+            "currentState": {
+              "completedTurns": 2,
+              "currentTurnPlayerColor": 1
+            },
+            "gameLogState": {
+              "12": {
+                "text": {
+                  "type": 44
+                }
+              }
+            }
+          }
+        },
+        {
+          "deltaS": 1.0,
+          "stateChange": {
+            "diceState": {
+              "dice1": 5,
+              "dice2": 3,
+              "diceThrown": true
+            },
+            "gameLogState": {
+              "13": {
+                "from": 1,
+                "text": {
+                  "type": 10,
+                  "firstDice": 5,
+                  "secondDice": 3,
+                  "playerColor": 1
+                }
+              }
+            }
+          }
+        },
+        {
+          "deltaS": 1.0,
+          "stateChange": {
+            "currentState": {
+              "completedTurns": 3,
+              "currentTurnPlayerColor": 5
+            },
+            "gameLogState": {
+              "14": {
+                "text": {
+                  "type": 44
+                }
+              }
+            }
+          }
+        },
+        {
+          "deltaS": 1.0,
+          "stateChange": {
+            "diceState": {
+              "dice1": 3,
+              "dice2": 4,
+              "diceThrown": true
+            },
+            "gameLogState": {
+              "15": {
+                "from": 5,
+                "text": {
+                  "type": 10,
+                  "firstDice": 3,
+                  "secondDice": 4,
+                  "playerColor": 5
+                }
+              }
+            }
+          }
+        },
+        {
+          "deltaS": 1.0,
+          "stateChange": {}
+        },
+        {
+          "deltaS": 1.0,
+          "stateChange": {
+            "currentState": {
+              "completedTurns": 4,
+              "currentTurnPlayerColor": 1
+            },
+            "gameLogState": {
+              "17": {
+                "text": {
+                  "type": 44
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "initialState": {
+      "mapState": {
+        "tileHexStates": {
+          "0": {
+            "type": 3,
+            "diceNumber": 8
+          },
+          "1": {
+            "type": 0,
+            "diceNumber": 10
+          },
+          "2": {
+            "type": 3,
+            "diceNumber": 5
+          },
+          "3": {
+            "type": 1,
+            "diceNumber": 4
+          },
+          "4": {
+            "type": 1,
+            "diceNumber": 12
+          },
+          "5": {
+            "type": 4,
+            "diceNumber": 2
+          },
+          "6": {
+            "type": 5,
+            "diceNumber": 6
+          },
+          "7": {
+            "type": 1,
+            "diceNumber": 9
+          },
+          "8": {
+            "type": 4,
+            "diceNumber": 6
+          },
+          "9": {
+            "type": 3,
+            "diceNumber": 10
+          },
+          "10": {
+            "type": 0,
+            "diceNumber": 11
+          },
+          "11": {
+            "type": 5,
+            "diceNumber": 5
+          },
+          "12": {
+            "type": 1,
+            "diceNumber": 3
+          },
+          "13": {
+            "type": 0,
+            "diceNumber": 9
+          },
+          "14": {
+            "type": 2,
+            "diceNumber": 0
+          },
+          "15": {
+            "type": 4,
+            "diceNumber": 3
+          },
+          "16": {
+            "type": 5,
+            "diceNumber": 11
+          },
+          "17": {
+            "type": 4,
+            "diceNumber": 4
+          },
+          "18": {
+            "type": 3,
+            "diceNumber": 8
+          }
+        },
+        "tileEdgeStates": {},
+        "tileCornerStates": {}
+      },
+      "bankState": {
+        "resourceCards": {
+          "1": 19,
+          "2": 19,
+          "3": 19,
+          "4": 19,
+          "5": 19
+        }
+      },
+      "playerStates": {
+        "1": {
+          "color": 1,
+          "resourceCards": {
+            "cards": []
+          },
+          "victoryPointsState": {},
+          "bankTradeRatiosState": {
+            "1": 4,
+            "2": 4,
+            "3": 4,
+            "4": 4,
+            "5": 4
+          }
+        },
+        "5": {
+          "color": 5,
+          "resourceCards": {
+            "cards": []
+          },
+          "victoryPointsState": {},
+          "bankTradeRatiosState": {
+            "1": 4,
+            "2": 4,
+            "3": 4,
+            "4": 4,
+            "5": 4
+          }
+        }
+      },
+      "currentState": {
+        "turnState": 0,
+        "actionState": 1,
+        "completedTurns": 0,
+        "currentTurnPlayerColor": 1
+      },
+      "gameLogState": {},
+      "mechanicRobberState": {
+        "isActive": true,
+        "locationTileIndex": 4
+      }
+    },
+    "endGameState": {
+      "players": {
+        "1": {
+          "rank": 2,
+          "color": 1,
+          "victoryPoints": {
+            "0": 2,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0
+          },
+          "winningPlayer": false
+        },
+        "5": {
+          "rank": 2,
+          "color": 5,
+          "victoryPoints": {
+            "0": 2,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0
+          },
+          "winningPlayer": false
+        }
+      },
+      "totalTurnCount": 4,
+      "gameDurationInMS": 22000
+    },
+    "gameSettings": {
+      "gameType": 6,
+      "victoryPointsToWin": 10,
+      "friendlyRobber": true,
+      "cardDiscardLimit": 9
+    },
+    "playerPerspective": 0
+  }
+}

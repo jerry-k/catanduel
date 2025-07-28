@@ -73,6 +73,8 @@ class RandomPlayer(Player):
     
     def decide(self, game: "Game", valid_actions: List[Action]) -> Action:
         """Choose a random valid action."""
+        if not valid_actions:
+            raise ValueError(f"No valid actions available for {self.name}")
         return random.choice(valid_actions)
 
 
@@ -168,6 +170,9 @@ class GreedyPlayer(Player):
                 10  # Default priority for unknown actions
             )
         
+        if not valid_actions:
+            raise ValueError(f"No valid actions available for {self.name}")
+            
         sorted_actions = sorted(valid_actions, key=priority)
         
         # Among actions with the same priority, choose randomly

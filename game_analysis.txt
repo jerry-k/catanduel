@@ -1,0 +1,489 @@
+
+============================================================
+Starting game: CatanatronMinimaxPlayer-0 vs CatanatronAlphaBetaPlayer-1
+============================================================
+
+Player 0 (Red) places initial settlement at corner 6
+Player 0 (Red) places initial road at edge 6
+Player 1 (Black) places initial settlement at corner 30
+Player 1 (Black) places initial road at edge 36
+Player 1 (Black) places initial settlement at corner 23
+  → Starting resources: 1 wood, 1 brick, 1 wheat
+Player 1 (Black) places initial road at edge 26
+Player 0 (Red) places initial settlement at corner 10
+Player 0 (Red) places initial road at edge 16
+Player 0 (Red) rolls dice
+  → Dice: 5 + 5 = 10
+  → Player 0 gains 1 brick, 1 sheep
+Player 0 (Red) builds road at edge 2
+
+--- Turn 0 ---
+Victory Points: P0=2 (hidden: 0), P1=2 (hidden: 0)
+P0 resources: 1 brick, 1 sheep, 1 wheat
+P1 resources: 1 wood, 1 brick, 1 wheat
+
+Player 0 (Red) ends turn
+Player 1 (Black) rolls dice
+  → Dice: 5 + 2 = 7
+Player 1 (Black) moves robber to hex 0
+Player 1 (Black) ends turn
+Player 0 (Red) rolls dice
+  → Dice: 1 + 5 = 6
+  → Player 0 gains 2 wheat
+  → Player 1 gains 1 wheat
+Player 0 (Red) ends turn
+Player 1 (Black) rolls dice
+  → Dice: 4 + 2 = 6
+  → Player 0 gains 2 wheat
+  → Player 1 gains 1 wheat
+Player 1 (Black) ends turn
+Player 0 (Red) rolls dice
+  → Dice: 1 + 3 = 4
+  → Player 1 gains 1 brick
+Player 0 (Red) ends turn
+
+--- Turn 5 ---
+Victory Points: P0=2 (hidden: 0), P1=2 (hidden: 0)
+P0 resources: 1 brick, 1 sheep, 5 wheat
+P1 resources: 1 wood, 2 brick, 3 wheat
+
+Player 1 (Black) rolls dice
+  → Dice: 4 + 2 = 6
+  → Player 0 gains 2 wheat
+  → Player 1 gains 1 wheat
+Player 1 (Black) builds road at edge 30
+Player 1 (Black) ends turn
+Player 0 (Red) rolls dice
+  → Dice: 2 + 5 = 7
+Player 0 (Red) discards 4 wheat
+Player 0 (Red) moves robber to hex 10
+Player 0 (Red) ends turn
+Player 1 (Black) rolls dice
+  → Dice: 3 + 3 = 6
+  → Player 0 gains 2 wheat
+  → Player 1 gains 1 wheat
+Player 1 (Black) ends turn
+Player 0 (Red) rolls dice
+  → Dice: 2 + 2 = 4
+  → Player 1 gains 1 brick
+
+--- Turn 8 ---
+Victory Points: P0=2 (hidden: 0), P1=2 (hidden: 0)
+P0 resources: 1 brick, 1 sheep, 5 wheat
+P1 resources: 2 brick, 5 wheat
+
+Player 0 (Red) ends turn
+Player 1 (Black) rolls dice
+  → Dice: 5 + 1 = 6
+  → Player 0 gains 2 wheat
+  → Player 1 gains 1 wheat
+Player 1 (Black) trades 4 wheat for 1 sheep
+Player 1 (Black) ends turn
+Player 0 (Red) rolls dice
+  → Dice: 4 + 4 = 8
+  → Player 1 gains 1 sheep
+Player 0 (Red) trades 4 wheat for 1 brick
+Player 0 (Red) ends turn
+Player 1 (Black) rolls dice
+  → Dice: 3 + 3 = 6
+  → Player 0 gains 2 wheat
+  → Player 1 gains 1 wheat
+Player 1 (Black) ends turn
+Player 0 (Red) rolls dice
+  → Dice: 1 + 2 = 3
+  → Player 1 gains 1 ore
+
+--- Turn 12 ---
+Victory Points: P0=2 (hidden: 0), P1=2 (hidden: 0)
+P0 resources: 2 brick, 1 sheep, 5 wheat
+P1 resources: 2 brick, 2 sheep, 3 wheat, 1 ore
+
+Player 0 (Red) ends turn
+Player 1 (Black) rolls dice
+  → Dice: 6 + 2 = 8
+  → Player 1 gains 1 sheep
+Player 1 (Black) buys development card
+Player 1 (Black) ends turn
+Player 0 (Red) rolls dice
+  → Dice: 1 + 3 = 4
+  → Player 1 gains 1 brick
+Player 0 (Red) ends turn
+Player 1 (Black) plays Knight card
+Player 1 (Black) moves robber to hex 0
+Player 1 (Black) rolls dice
+  → Dice: 6 + 5 = 11
+  → Player 1 gains 1 wood
+Player 1 (Black) builds settlement at corner 18
+
+--- Turn 15 ---
+Victory Points: P0=2 (hidden: 0), P1=3 (hidden: 0)
+P0 resources: 2 brick, 1 sheep, 5 wheat
+P1 resources: 2 brick, 1 sheep, 1 wheat
+
+Player 1 (Black) ends turn
+Player 0 (Red) rolls dice
+  → Dice: 3 + 5 = 8
+  → Player 1 gains 1 sheep
+Player 0 (Red) ends turn
+Player 1 (Black) rolls dice
+  → Dice: 3 + 5 = 8
+  → Player 1 gains 1 sheep
+Player 1 (Black) ends turn
+Player 0 (Red) rolls dice
+  → Dice: 2 + 3 = 5
+  → Player 1 gains 1 wheat
+Player 0 (Red) ends turn
+Player 1 (Black) rolls dice
+  → Dice: 1 + 2 = 3
+  → Player 1 gains 1 ore
+Player 1 (Black) ends turn
+Player 0 (Red) rolls dice
+  → Dice: 4 + 2 = 6
+  → Player 0 gains 2 wheat
+  → Player 1 gains 1 wheat
+
+--- Turn 20 ---
+Victory Points: P0=2 (hidden: 0), P1=3 (hidden: 0)
+P0 resources: 2 brick, 1 sheep, 7 wheat
+P1 resources: 2 brick, 3 sheep, 3 wheat, 1 ore
+
+Player 0 (Red) trades 4 wheat for 1 wood
+Player 0 (Red) builds settlement at corner 2
+Player 0 (Red) ends turn
+Player 1 (Black) rolls dice
+  → Dice: 5 + 3 = 8
+  → Player 1 gains 1 sheep
+Player 1 (Black) trades 4 sheep for 1 ore
+Player 1 (Black) ends turn
+Player 0 (Red) rolls dice
+  → Dice: 6 + 1 = 7
+Player 0 (Red) moves robber to hex 5 and steals from Player 1 (Black)
+Player 0 (Red) ends turn
+Player 1 (Black) rolls dice
+  → Dice: 3 + 3 = 6
+  → Player 0 gains 2 wheat
+  → Player 1 gains 1 wheat
+
+--- Turn 23 ---
+Victory Points: P0=3 (hidden: 0), P1=3 (hidden: 0)
+P0 resources: 2 brick, 4 wheat
+P1 resources: 1 brick, 4 wheat, 2 ore
+
+Player 1 (Black) ends turn
+Player 0 (Red) rolls dice
+  → Dice: 6 + 6 = 12
+Player 0 (Red) trades 4 wheat for 1 sheep
+Player 0 (Red) ends turn
+Player 1 (Black) rolls dice
+  → Dice: 2 + 6 = 8
+  → Player 1 gains 1 sheep
+Player 1 (Black) buys development card
+Player 1 (Black) ends turn
+Player 0 (Red) rolls dice
+  → Dice: 6 + 3 = 9
+  → Player 0 gains 1 ore
+  → Player 1 gains 1 sheep
+Player 0 (Red) ends turn
+Player 1 (Black) rolls dice
+  → Dice: 5 + 1 = 6
+  → Player 0 gains 2 wheat
+  → Player 1 gains 1 wheat
+
+--- Turn 27 ---
+Victory Points: P0=3 (hidden: 0), P1=3 (hidden: 1)
+P0 resources: 2 brick, 1 sheep, 2 wheat, 1 ore
+P1 resources: 1 brick, 1 sheep, 4 wheat, 1 ore
+
+Player 1 (Black) ends turn
+Player 0 (Red) rolls dice
+  → Dice: 5 + 3 = 8
+  → Player 1 gains 1 sheep
+Player 0 (Red) ends turn
+Player 1 (Black) rolls dice
+  → Dice: 6 + 6 = 12
+Player 1 (Black) buys development card
+Player 1 (Black) ends turn
+Player 0 (Red) rolls dice
+  → Dice: 3 + 4 = 7
+Player 0 (Red) moves robber to hex 15 and steals from Player 1 (Black)
+Player 0 (Red) buys development card
+Player 0 (Red) ends turn
+
+--- Turn 31 ---
+Victory Points: P0=3 (hidden: 0), P1=3 (hidden: 2)
+P0 resources: 2 brick, 2 wheat
+P1 resources: 1 brick, 1 sheep, 2 wheat
+
+Player 1 (Black) rolls dice
+  → Dice: 5 + 1 = 6
+  → Player 0 gains 2 wheat
+Player 1 (Black) ends turn
+Player 0 (Red) plays Monopoly card
+Player 0 (Red) rolls dice
+  → Dice: 2 + 5 = 7
+Player 0 (Red) moves robber to hex 5 and steals from Player 1 (Black)
+Player 0 (Red) trades 4 wheat for 1 ore
+Player 0 (Red) ends turn
+Player 1 (Black) rolls dice
+  → Dice: 2 + 5 = 7
+Player 1 (Black) moves robber to hex 12 and steals from Player 0 (Red)
+Player 1 (Black) ends turn
+
+--- Turn 34 ---
+Victory Points: P0=3 (hidden: 0), P1=3 (hidden: 2)
+P0 resources: 1 brick, 1 wheat, 1 ore
+P1 resources: 2 brick, 1 sheep, 1 wheat
+
+Player 0 (Red) rolls dice
+  → Dice: 5 + 6 = 11
+  → Player 1 gains 2 wood
+Player 0 (Red) ends turn
+Player 1 (Black) rolls dice
+  → Dice: 5 + 3 = 8
+  → Player 1 gains 1 sheep
+Player 1 (Black) builds road at edge 37
+Player 1 (Black) builds settlement at corner 32
+Player 1 (Black) ends turn
+Player 0 (Red) rolls dice
+  → Dice: 2 + 1 = 3
+  → Player 0 gains 1 brick
+  → Player 1 gains 1 ore
+Player 0 (Red) ends turn
+Player 1 (Black) rolls dice
+  → Dice: 2 + 3 = 5
+  → Player 1 gains 2 wheat
+Player 1 (Black) buys development card
+
+--- Turn 37 ---
+Victory Points: P0=3 (hidden: 0), P1=4 (hidden: 3)
+P0 resources: 2 brick, 1 wheat, 1 ore
+P1 resources: 1 wheat
+
+Player 1 (Black) ends turn
+Player 0 (Red) rolls dice
+  → Dice: 5 + 4 = 9
+  → Player 0 gains 1 ore
+  → Player 1 gains 1 sheep
+Player 0 (Red) ends turn
+Player 1 (Black) rolls dice
+  → Dice: 3 + 5 = 8
+  → Player 1 gains 1 sheep
+Player 1 (Black) trades 2 sheep for 1 wood
+Player 1 (Black) ends turn
+Player 0 (Red) rolls dice
+  → Dice: 2 + 4 = 6
+  → Player 0 gains 2 wheat
+  → Player 1 gains 1 wheat
+Player 0 (Red) ends turn
+Player 1 (Black) rolls dice
+  → Dice: 1 + 2 = 3
+  → Player 0 gains 1 brick
+  → Player 1 gains 1 ore
+Player 1 (Black) ends turn
+
+--- Turn 42 ---
+Victory Points: P0=3 (hidden: 0), P1=4 (hidden: 3)
+P0 resources: 3 brick, 3 wheat, 2 ore
+P1 resources: 1 wood, 2 wheat, 1 ore
+
+Player 0 (Red) rolls dice
+  → Dice: 4 + 1 = 5
+  → Player 1 gains 2 wheat
+Player 0 (Red) ends turn
+Player 1 (Black) rolls dice
+  → Dice: 2 + 1 = 3
+  → Player 0 gains 1 brick
+  → Player 1 gains 1 ore
+Player 1 (Black) ends turn
+Player 0 (Red) rolls dice
+  → Dice: 1 + 3 = 4
+  → Player 1 gains 2 brick
+Player 0 (Red) trades 4 brick for 1 ore
+Player 0 (Red) upgrades settlement to city at corner 6
+Player 0 (Red) ends turn
+Player 1 (Black) rolls dice
+  → Dice: 6 + 1 = 7
+Player 1 (Black) discards 1 wood, 1 brick, 2 wheat
+
+--- Turn 45 ---
+Victory Points: P0=4 (hidden: 0), P1=4 (hidden: 3)
+P0 resources: 1 wheat
+P1 resources: 1 brick, 2 wheat, 2 ore
+
+Player 1 (Black) moves robber to hex 1 and steals from Player 0 (Red)
+Player 1 (Black) ends turn
+Player 0 (Red) rolls dice
+  → Dice: 4 + 4 = 8
+  → Player 1 gains 1 sheep
+Player 0 (Red) ends turn
+Player 1 (Black) rolls dice
+  → Dice: 1 + 3 = 4
+  → Player 1 gains 2 brick
+Player 1 (Black) ends turn
+Player 0 (Red) rolls dice
+  → Dice: 6 + 3 = 9
+  → Player 1 gains 1 sheep
+Player 0 (Red) ends turn
+Player 1 (Black) rolls dice
+  → Dice: 2 + 5 = 7
+Player 1 (Black) discards 2 brick, 2 sheep, 1 wheat
+
+--- Turn 49 ---
+Victory Points: P0=4 (hidden: 0), P1=4 (hidden: 3)
+P0 resources: none
+P1 resources: 1 brick, 2 wheat, 2 ore
+
+Player 1 (Black) moves robber to hex 12
+Player 1 (Black) ends turn
+Player 0 (Red) rolls dice
+  → Dice: 3 + 5 = 8
+  → Player 1 gains 1 sheep
+Player 0 (Red) ends turn
+Player 1 (Black) rolls dice
+  → Dice: 1 + 2 = 3
+  → Player 0 gains 1 brick
+  → Player 1 gains 1 ore
+Player 1 (Black) upgrades settlement to city at corner 30
+Player 1 (Black) ends turn
+Player 0 (Red) rolls dice
+  → Dice: 5 + 5 = 10
+  → Player 0 gains 1 brick
+Player 0 (Red) ends turn
+Player 1 (Black) rolls dice
+  → Dice: 6 + 4 = 10
+  → Player 0 gains 1 brick
+
+--- Turn 53 ---
+Victory Points: P0=4 (hidden: 0), P1=5 (hidden: 3)
+P0 resources: 3 brick
+P1 resources: 1 brick, 1 sheep
+
+Player 1 (Black) ends turn
+Player 0 (Red) rolls dice
+  → Dice: 5 + 5 = 10
+  → Player 0 gains 1 brick
+Player 0 (Red) ends turn
+Player 1 (Black) rolls dice
+  → Dice: 5 + 4 = 9
+  → Player 0 gains 2 ore
+  → Player 1 gains 1 sheep
+Player 1 (Black) trades 2 sheep for 1 wheat
+Player 1 (Black) ends turn
+Player 0 (Red) rolls dice
+  → Dice: 1 + 1 = 2
+  → Player 0 gains 1 wood
+Player 0 (Red) builds road at edge 64
+Player 0 (Red) ends turn
+Player 1 (Black) rolls dice
+  → Dice: 6 + 3 = 9
+  → Player 0 gains 2 ore
+  → Player 1 gains 1 sheep
+
+--- Turn 57 ---
+Victory Points: P0=4 (hidden: 0), P1=5 (hidden: 3)
+P0 resources: 3 brick, 4 ore
+P1 resources: 1 brick, 1 sheep, 1 wheat
+
+Player 1 (Black) ends turn
+Player 0 (Red) rolls dice
+  → Dice: 1 + 2 = 3
+  → Player 0 gains 1 brick
+  → Player 1 gains 2 ore
+Player 0 (Red) ends turn
+Player 1 (Black) rolls dice
+  → Dice: 6 + 3 = 9
+  → Player 0 gains 2 ore
+  → Player 1 gains 1 sheep
+Player 1 (Black) trades 2 sheep for 1 ore
+Player 1 (Black) ends turn
+Player 0 (Red) rolls dice
+  → Dice: 2 + 6 = 8
+  → Player 1 gains 2 sheep
+Player 0 (Red) trades 4 brick for 1 wheat
+Player 0 (Red) trades 4 ore for 1 wood
+Player 0 (Red) ends turn
+
+--- Turn 61 ---
+Victory Points: P0=4 (hidden: 0), P1=5 (hidden: 3)
+P0 resources: 1 wood, 1 wheat, 2 ore
+P1 resources: 1 brick, 2 sheep, 1 wheat, 3 ore
+
+Player 1 (Black) rolls dice
+  → Dice: 5 + 3 = 8
+  → Player 1 gains 2 sheep
+Player 1 (Black) ends turn
+Player 0 (Red) rolls dice
+  → Dice: 3 + 2 = 5
+  → Player 1 gains 3 wheat
+Player 0 (Red) ends turn
+Player 1 (Black) rolls dice
+  → Dice: 6 + 5 = 11
+  → Player 1 gains 2 wood
+Player 1 (Black) upgrades settlement to city at corner 23
+Player 1 (Black) builds road at edge 43
+Player 1 (Black) trades 2 sheep for 1 ore
+Player 1 (Black) buys development card
+Player 1 (Black) ends turn
+
+--- Turn 64 ---
+Victory Points: P0=4 (hidden: 0), P1=6 (hidden: 3)
+P0 resources: 1 wood, 1 wheat, 2 ore
+P1 resources: 1 wood, 1 sheep, 1 wheat
+
+Player 0 (Red) rolls dice
+  → Dice: 6 + 2 = 8
+  → Player 1 gains 2 sheep
+Player 0 (Red) ends turn
+Player 1 (Black) plays Knight card
+Player 1 (Black) moves robber to hex 1 and steals from Player 0 (Red)
+Player 1 (Black) rolls dice
+  → Dice: 4 + 3 = 7
+Player 1 (Black) moves robber to hex 12 and steals from Player 0 (Red)
+Player 1 (Black) trades 2 sheep for 1 ore
+Player 1 (Black) buys development card
+Player 1 (Black) ends turn
+Player 0 (Red) rolls dice
+  → Dice: 6 + 2 = 8
+  → Player 1 gains 2 sheep
+
+--- Turn 66 ---
+Victory Points: P0=4 (hidden: 0), P1=6 (hidden: 3)
+P0 resources: 2 ore
+P1 resources: 2 wood, 2 sheep, 1 wheat
+
+Player 0 (Red) ends turn
+Player 1 (Black) plays Road Building card
+Player 1 (Black) builds road at edge 21
+Player 1 (Black) builds road at edge 17
+Player 1 (Black) rolls dice
+  → Dice: 2 + 5 = 7
+Player 1 (Black) moves robber to hex 1 and steals from Player 0 (Red)
+Player 1 (Black) buys development card
+Player 1 (Black) ends turn
+Player 0 (Red) rolls dice
+  → Dice: 2 + 6 = 8
+  → Player 1 gains 2 sheep
+Player 0 (Red) ends turn
+
+--- Turn 69 ---
+Victory Points: P0=4 (hidden: 0), P1=6 (hidden: 3)
+P0 resources: 1 ore
+P1 resources: 2 wood, 3 sheep
+
+Player 1 (Black) plays Knight card
+
+============================================================
+Game Over! Winner: Player 1 (CatanatronAlphaBetaPlayer-1)
+Final VPs: P0=4, P1=11
+Total turns: 201
+
+Final Building Counts:
+  Player 0: 2 settlements, 1 cities, 4 roads
+  Player 1: 2 settlements, 2 cities, 7 roads
+
+Special Achievements:
+  Longest Road: None
+  Road Lengths: P0=2, P1=4
+  Largest Army: Player 1 (3 knights, 2 VP)
+============================================================
+

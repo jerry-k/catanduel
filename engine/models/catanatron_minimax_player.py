@@ -141,9 +141,10 @@ class CatanatronMinimaxPlayer(Player):
         if game.is_over():
             winner = game.state.get_winner()
             if winner == self.player_id:
-                return 1000
+                # Return value higher than any possible evaluation
+                return 1e16  # 10x higher than max VP evaluation
             elif winner is not None:
-                return -1000
+                return -1e16
             else:
                 return 0
         
@@ -293,8 +294,8 @@ class CatanatronMinimaxPlayer(Player):
         my_player = state.players[self.player_id]
         opp_player = state.players[1 - self.player_id]
         
-        # Victory points (most important)
-        vp_score = my_player.actual_vps() * self.weights["public_vps"]
+        # Victory points (most important) - use only PUBLIC vps
+        vp_score = my_player.public_vps * self.weights["public_vps"]
         
         # Production calculation
         my_production = self._calculate_production(state, self.player_id)

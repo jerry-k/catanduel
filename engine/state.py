@@ -162,8 +162,8 @@ class GameState:
     
     def copy(self) -> "GameState":
         """Create a deep copy of the game state."""
-        # Manual copy for better performance than deepcopy
-        new_state = GameState()
+        # Create new instance without triggering __init__
+        new_state = object.__new__(GameState)
         
         # Copy board
         new_state.board = self.board.copy()
@@ -197,8 +197,8 @@ class GameState:
         new_state.initial_phase = self.initial_phase
         new_state.initial_settlements_placed = self.initial_settlements_placed
         
-        # Copy history
-        new_state.action_history = self.action_history.copy()
+        # Copy history (limit size for AI planning)
+        new_state.action_history = self.action_history[-10:] if len(self.action_history) > 10 else self.action_history.copy()
         
         # Don't copy cache
         new_state._valid_actions_cache = None

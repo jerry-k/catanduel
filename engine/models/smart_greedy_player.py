@@ -34,6 +34,9 @@ class SmartGreedyPlayer(GreedyPlayer):
     
     def decide(self, game: "Game", valid_actions: List[Action]) -> Action:
         """Override decide to use smart logic for initial settlements."""
+        if not valid_actions:
+            raise ValueError(f"No valid actions available for {self.name}")
+            
         # Check if this is an initial settlement decision
         initial_settlement_actions = [
             a for a in valid_actions 

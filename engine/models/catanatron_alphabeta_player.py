@@ -17,6 +17,7 @@ from engine.models.enums import (
     KNIGHT, YEAR_OF_PLENTY, MONOPOLY, ROAD_BUILDING, VICTORY_POINT,
     PLAYER_0, PLAYER_1
 )
+from engine.probabilistic_expansion import execute_spectrum
 
 # Type checking
 from typing import TYPE_CHECKING
@@ -26,7 +27,7 @@ if TYPE_CHECKING:
 
 
 # Constants from catanatron
-ALPHABETA_DEFAULT_DEPTH = 2
+ALPHABETA_DEFAULT_DEPTH = 3
 MAX_SEARCH_TIME_SECS = 20
 
 # Dice probabilities (exact from catanatron)
@@ -91,6 +92,9 @@ class CatanatronAlphaBetaPlayer(Player):
     
     def decide(self, game: "Game", valid_actions: List[Action]) -> Action:
         """Choose the best action using expectimax with alpha-beta pruning."""
+        if not valid_actions:
+            raise ValueError(f"No valid actions available for {self.name}")
+            
         if len(valid_actions) == 1:
             return valid_actions[0]
         
@@ -194,94 +198,9 @@ class CatanatronAlphaBetaPlayer(Player):
     def _execute_spectrum(self, game: "Game", action: Action) -> List[Tuple["Game", float]]:
         """
         Execute action and return all possible outcomes with probabilities.
-        This is the key difference from our previous implementation.
+        Now uses our proper probabilistic expansion module.
         """
-        action_type = action.action_type
-        
-        if action_type == ActionType.ROLL:
-            # Dice roll - expand to all 11 outcomes
-            # Note: Our engine doesn't support forcing specific rolls,
-            # so we'll approximate by using the expected production value
-            outcomes = []
-            
-            # For now, execute normally since we can't force rolls
-            game_copy = game.copy()
-            try:
-                game_copy.execute(action, validate=False)
-                # Weight by expected value of the roll
-                outcomes.append((game_copy, 1.0))
-            except:
-                pass
-            
-            return outcomes
-        
-        elif action_type == ActionType.BUY_DEVELOPMENT_CARD:
-            # Calculate probabilities based on deck composition
-            outcomes = []
-            total_cards = sum(self.deck_composition.values())
-            
-            if total_cards == 0:
-                return []
-            
-            # For each possible card type
-            for card_type, count in self.deck_composition.items():
-                if count > 0:
-                    probability = count / total_cards
-                    
-                    # Since we can't control which card is drawn,
-                    # we execute once and weight by probability
-                    game_copy = game.copy()
-                    try:
-                        game_copy.execute(action, validate=False)
-                        outcomes.append((game_copy, probability))
-                        break  # Can only execute once
-                    except:
-                        pass
-            
-            return outcomes if outcomes else [(game.copy(), 1.0)]
-        
-        elif action_type == ActionType.MOVE_ROBBER:
-            # Robber stealing - consider all possible resources
-            hex_id, victim_id = action.value
-            
-            if victim_id is None:
-                # No stealing, deterministic
-                game_copy = game.copy()
-                try:
-                    game_copy.execute(action, validate=False)
-                    return [(game_copy, 1.0)]
-                except:
-                    return []
-            
-            # Get victim's resources
-            victim_resources = game.state.players[victim_id].resources
-            total_resources = sum(victim_resources)
-            
-            if total_resources == 0:
-                # No resources to steal
-                game_copy = game.copy()
-                try:
-                    game_copy.execute(action, validate=False)
-                    return [(game_copy, 1.0)]
-                except:
-                    return []
-            
-            # For now, execute once with averaged probability
-            game_copy = game.copy()
-            try:
-                game_copy.execute(action, validate=False)
-                return [(game_copy, 1.0)]
-            except:
-                return []
-        
-        else:
-            # Deterministic action
-            game_copy = game.copy()
-            try:
-                game_copy.execute(action, validate=False)
-                return [(game_copy, 1.0)]
-            except:
-                return []
+        return execute_spectrum(game, action)
     
     def _list_prunned_actions(self, game: "Game", actions: List[Action]) -> List[Action]:
         """Prune actions following catanatron's logic."""
@@ -348,8 +267,8 @@ class CatanatronAlphaBetaPlayer(Player):
         
         features = {}
         
-        # Victory points
-        features["public_vps"] = my_player.actual_vps()
+        # Victory points (only PUBLIC vps, not including hidden VP cards)
+        features["public_vps"] = my_player.public_vps
         
         # Production (with variety bonus)
         my_production, my_variety = self._calculate_production_and_variety(state, self.player_id)
@@ -542,8 +461,10 @@ class CatanatronAlphaBetaPlayer(Player):
         """Value for terminal game states."""
         winner = game.state.get_winner()
         if winner == self.player_id:
-            return 100000
+            # Return a value higher than any possible evaluation
+            # This ensures winning is always preferred
+            return 1e16  # 10x higher than max VP evaluation
         elif winner is not None:
-            return -100000
+            return -1e16
         else:
             return 0
